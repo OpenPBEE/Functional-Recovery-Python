@@ -1,5 +1,35 @@
 # Functional-Recovery---Python
 This is translation of Matlab codebase into Python for quantifying building-specific functional recovery and reoccupancy based on a probabilistic performance-based earthquake engineering framework.
+
+## Requirements
+- The `requirements.txt` file defines the Python package dependencies required to run this codebase. Follow the instructions below to install all required depenedancies listed in the 'requirements.txt' file.
+- Recommended Python version: `3.9` (the codebase was developed and tested with Python 3.9).
+
+Installation (using a virtual environment is recommended):
+
+```powershell
+# create a virtual environment
+python -m venv .venv
+
+# activate the virtual environment (PowerShell)
+.\.venv\Scripts\Activate.ps1
+
+# upgrade pip (optional but recommended)
+python -m pip install --upgrade pip
+
+# install dependencies from requirements.txt
+pip install -r requirements.txt
+```
+
+If you prefer conda:
+
+```bash
+conda create -n frec python=3.9
+conda activate frec
+pip install -r requirements.txt
+```
+
+If you run into platform-specific dependency issues, please refer to the package error messages and install any missing system libraries before re-running `pip install -r requirements.txt`.
 Original Matlab code is from Dr. Dustin Cook's Github directory https://github.com/OpenPBEE/PBEE-Recovery.
 
 ### Method Description
