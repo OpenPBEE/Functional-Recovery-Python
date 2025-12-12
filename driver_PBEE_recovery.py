@@ -1,4 +1,4 @@
-def run_analysis(model_name):
+def run_analysis(model_name, seed=None):
 
     '''This script facilitates the performance based functional recovery and
     reoccupancy assessment of a single building for a single intensity level
@@ -84,6 +84,12 @@ def run_analysis(model_name):
     
     ## 5. Run Recovery Method
     from main_PBEE_recovery import main_PBEE_recovery
+
+    # set a seed
+    # this seed propagates through the entire subfunctions
+    # so if subfunction requires a distinct random variate, a seed instance will have to be used instead
+    if seed is not None:
+        np.random.seed(seed)
     
     functionality, damage_consequences = main_PBEE_recovery(damage, 
                                                             damage_consequences, 
