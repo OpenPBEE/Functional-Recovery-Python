@@ -41,9 +41,9 @@ def fn_check_habitability( damage, damage_consequences, reoc_meta, func_meta,
    
     # Go through each of the tenant function branches and combines checks
     day_tenant_unit_reoccupiable = np.zeros([num_reals,1])
-    fault_tree_events_LV1 = list(comp_breakdowns.keys())
+    fault_tree_events_LV1 = list(recovery_day.keys())
     for i in range(len(fault_tree_events_LV1)):
-        fault_tree_events_LV2 = list(comp_breakdowns[fault_tree_events_LV1[i]].keys())
+        fault_tree_events_LV2 = list(recovery_day[fault_tree_events_LV1[i]].keys())
         for j in range(len(fault_tree_events_LV2)):
             day_tenant_unit_reoccupiable = np.fmax(day_tenant_unit_reoccupiable, 
                                                recovery_day[fault_tree_events_LV1[i]][fault_tree_events_LV2[j]].reshape(num_reals, int(np.size(recovery_day[fault_tree_events_LV1[i]][fault_tree_events_LV2[j]])/num_reals)))

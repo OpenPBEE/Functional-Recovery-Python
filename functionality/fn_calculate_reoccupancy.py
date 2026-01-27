@@ -67,18 +67,24 @@ def fn_calculate_reoccupancy(damage, damage_consequences, utilities,
     recovery_day['tenant_safety'], comp_breakdowns['tenant_safety'] = other_functionality_functions.fn_tenant_safety( damage, building_model, functionality_options, tenant_units)
     
     ## Combine Check to determine the day the each tenant unit is reoccupiable
-    # Check the day the building is safe
-    day_building_safe = np.fmax(recovery_day['building_safety']['red_tag'],
-                        np.fmax(recovery_day['building_safety']['shoring'],
-                        np.fmax(recovery_day['building_safety']['hazardous_material'],
-                        np.fmax(recovery_day['building_safety']['entry_door_access'],
-                        recovery_day['building_safety']['fire_suppression']))))
-    # Check the day each story is accessible
-    day_story_accessible = np.fmax(recovery_day['story_access']['stairs'], np.fmax(recovery_day['story_access']['stair_doors'], np.fmax(recovery_day['story_access']['flooding'], recovery_day['story_access']['horizontal_egress'])))
+    # Go through each of the building safety checks and combine them to check the day the building is safe (max of all checks)
+    fault_tree_events_building_safety = list(recovery_day['building_safety'].keys())
+    day_building_safe = recovery_day['building_safety'][fault_tree_events_building_safety[0]]
+    for i in range(1, len(fault_tree_events_building_safety)):
+        day_building_safe = np.fmax(day_building_safe, recovery_day['building_safety'][fault_tree_events_building_safety[i]])
+
+    # Go through each of the story access checks and combine them to check the day each story is accessible (max of all checks)
+    fault_tree_events_story_access = list(recovery_day['story_access'].keys())
+    day_story_accessible = recovery_day['story_access'][fault_tree_events_story_access[0]]
+    for i in range(1, len(fault_tree_events_story_access)):
+        day_story_accessible = np.fmax(day_story_accessible, recovery_day['story_access'][fault_tree_events_story_access[i]])
     
-    # Check the day each tenant unit is safe
-    day_tenant_unit_safe = np.fmax(recovery_day['tenant_safety']['interior'], np.fmax(recovery_day['tenant_safety']['exterior'], recovery_day['tenant_safety']['hazardous_material']))
-    
+    # Go through each of the tenant unit safety checks and combine them to check the day each tenant unit is safe (max of all checks)
+    fault_tree_events_tenant_unit_safe = list(recovery_day['tenant_safety'].keys())
+    day_tenant_unit_safe = recovery_day['tenant_safety'][fault_tree_events_tenant_unit_safe[0]]
+    for i in range(1, len(fault_tree_events_tenant_unit_safe)):
+        day_tenant_unit_safe = np.fmax(day_tenant_unit_safe, recovery_day['tenant_safety'][fault_tree_events_tenant_unit_safe[i]])
+
     # Combine checks to determine when each tenant unit is re-occupiable
     day_tenant_unit_reoccupiable = np.fmax(np.fmax(day_building_safe.reshape(len(day_building_safe),1), day_story_accessible), day_tenant_unit_safe)
     
