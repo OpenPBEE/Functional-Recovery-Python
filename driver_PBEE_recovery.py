@@ -19,7 +19,9 @@ def run_analysis(model_name, seed=None):
         Name of the model. Inputs are expected to be in a directory with this 
         name. Outputs will save to a directory with this name
     
-    
+    seed: int
+        Random seed to be passed to the Numpy random engine. Default behavior
+        is set as None and will not pass a random seed.
     """'''
     
     import time
