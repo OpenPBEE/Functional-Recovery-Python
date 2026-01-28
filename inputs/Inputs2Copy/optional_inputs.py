@@ -71,6 +71,10 @@ optional_inputs = {
 "calculate_red_tag" : 1,
 "red_tag_clear_time" : 7,
 "red_tag_clear_beta" : 0.6,
+"red_tag_options" : {
+    "tag_coupling_beams_over_height" : True,
+    "ignore_coupling_beam_for_red_tag" : False
+    },
 "include_local_stability_impact" : 1,
 "include_flooding_impact": 1,
 "egress_threshold" : 0.5,
@@ -80,14 +84,15 @@ optional_inputs = {
 "exterior_safety_threshold" : 0.1,
 "interior_safety_threshold" : 0.25,
 "door_access_width_ft" : 9,
-"habitability_requirements": {"electrical" : 0,
-                             "water_potable" : 0,
-                             "water_sanitary" : 0,
-                             "hvac_ventilation" : 0,
-                             "hvac_heating" : 0,
-                             "hvac_cooling" : 0,
-                             "hvac_exhaust" : 0                       
-                             },
+"habitability_requirements": {
+    "electrical" : 0,
+    "water_potable" : 0,
+    "water_sanitary" : 0,
+    "hvac_ventilation" : 0,
+    "hvac_heating" : 0,
+    "hvac_cooling" : 0,
+    "hvac_exhaust" : 0                       
+    },
 "water_pressure_max_story" : 4,
 "heat_utility" : 'gas',
                         }

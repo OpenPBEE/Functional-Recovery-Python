@@ -71,7 +71,8 @@ def main_PBEE_recovery(damage, damage_consequences, building_model,
     ## Calculate Red Tags
     RT, RTI, IT = fn_red_tag(functionality_options['calculate_red_tag'], 
                                     damage, building_model['comps'],
-                                    np.array(damage_consequences['simulated_replacement_time']))
+                                    np.array(damage_consequences['simulated_replacement_time']),
+                                    functionality_options['red_tag_options'])
     
     damage_consequences['red_tag'] = RT 
     damage_consequences['red_tag_impact'] = RTI 
