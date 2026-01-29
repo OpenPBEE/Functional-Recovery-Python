@@ -275,19 +275,19 @@ def fn_building_safety(damage, building_model, damage_consequences, utilities,
             num_drops = max(np.array(damage['tenant_units'][tu]['num_comps'])* filt_fs_drop) # Assumes drops are all in one performance group
             num_branches = max(np.array(damage['tenant_units'][tu]['num_comps']) * filt_fs_branch) # Assumes branches are all in one performance group
             
-            if (sum(num_drops) + sum(num_branches)) > 0: # If there are any of these components on in this tenant unit
+            if (num_drops + num_branches) > 0: # If there are any of these components on in this tenant unit
                 # Loop through component repair times to determine the day it stops affecting re-occupanc
                 num_repair_time_increments = sum(filt_fs_drop | filt_fs_branch) # possible unique number of loop increments
                 
                 for i in range(num_repair_time_increments):
                     # Calculate the ratio of damaged drops and branches on this story
                     ratio_damaged_drop = np.sum(damaged_comps * filt_fs_drop, axis=1) / num_drops # assumes comps are not simeltaneous
-                    ratio_damaged_branch = np.sum(damaged_comps * filt_fs_branch, axis=1) / num_drops # assumes comps are not simeltaneous
+                    ratio_damaged_branch = np.sum(damaged_comps * filt_fs_branch, axis=1) / num_branches # assumes comps are not simeltaneous
     
                     # Determine if fire drops and branches are adequately operating
                     fire_drop_operational = functionality_options['local_fire_damamge_threshold'] >= ratio_damaged_drop
                     fire_branch_operational = functionality_options['local_fire_damamge_threshold'] >= ratio_damaged_branch
-                    local_fire_operational = fire_drop_operational & fire_drop_operational
+                    local_fire_operational = fire_drop_operational & fire_branch_operational
                     
                     # Add days in this increment to the tally
                     delta_day = np.nanmin(repair_complete_day[:,filt_fs_drop], axis=1);
@@ -310,8 +310,9 @@ def fn_building_safety(damage, building_model, damage_consequences, utilities,
         fire_safety_day_building = np.nanmax(fire_safety_day, axis=1)
         
         # Combine parts of fire suppression system
-        recovery_day['fire_suppression'] = np.amax(recovery_day['fire_suppression'],fire_safety_day_building)
-        comp_breakdowns['fire_suppression'] = np.amax(comp_breakdowns['fire_suppression'],comp_breakdowns_local_fire)
+        recovery_day['fire_suppression'] = np.fmax(recovery_day['fire_suppression'], fire_safety_day_building)
+
+        comp_breakdowns['fire_suppression'] = np.fmax(comp_breakdowns['fire_suppression'],comp_breakdowns_local_fire)
     
     ## Delay Red Tag recovery by the time it takes to clear the tag
     sim_red_tag_clear_time = np.ceil(np.random.lognormal(np.log(functionality_options['red_tag_clear_time']),
