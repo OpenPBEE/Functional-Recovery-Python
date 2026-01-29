@@ -369,7 +369,8 @@ def fn_prioritize_systems( systems, repair_type, damage, tmp_repair_complete_day
         if any(sys_filter): # Only if this system is present
             sys_affects_reoccupancy[:,syst] = np.any(affects_reoccupancy[:,sys_filter], axis = 1); # any damage that potentially affects function in this system    
             sys_affects_function[:,syst] = np.any(affects_function[:,sys_filter], axis = 1); # any damage that potentially affects function in this system
-            if tmp_repair_complete_day != []: # Only if temp repair data is passed in
+            # check if the list (array) is non-empty
+            if list(tmp_repair_complete_day): # Only if temp repair data is passed in
                 all_sys_tmp_repaired = np.all(np.logical_or(tmp_repair_complete_day[:,sys_filter] < np.inf, np.isnan(tmp_repair_complete_day[:,sys_filter])), axis=1) # is every single damaged component resolved by temp repairs
                 tmp_repair_quick = np.nanmax(tmp_repair_complete_day[:,sys_filter], axis=1) < impeding_factors['time_sys'][:,syst] # Are the temp repairs for this system resolved before impeding factors are complete
                 sys_tmp_repaired[:,syst] = np.logical_and(all_sys_tmp_repaired, tmp_repair_quick) # damage is quickly resolved by temp repair
