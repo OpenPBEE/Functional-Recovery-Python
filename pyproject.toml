@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "atc138"
+version = "0.1.0"
+description = "Functional Recovery Assessment (ATC-138)"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {file = "LICENSE"}
+authors = [
+  {name = "Dustin Cook", email = "dustin.cook@nist.gov"},
+]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: BSD License",
+  "Operating System :: OS Independent",
+]
+dependencies = [
+  "numpy",
+  "pandas",
+  "scipy",
+  "matplotlib",
+  "seaborn",
+]
+
+[project.scripts]
+atc138 = "atc138.cli:main"
+
+[project.urls]
+"Homepage" = "https://github.com/NHERI-SimCenter/Functional-Recovery-Python"
+"Bug Tracker" = "https://github.com/NHERI-SimCenter/Functional-Recovery-Python/issues"
+
+[tool.setuptools.packages.find]
+where = ["src"]
