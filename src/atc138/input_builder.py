@@ -577,22 +577,10 @@ def convert_pelicun(model_dir):
         - DL_summary.csv: summary of damage and loss, to read in irreparable cases
         - DMG_sample.csv: damage sample of all realizations
         - DV_repair_sample.csv: decision variable sample of all realizations
-        - general_inputs.json: egress, occupancy, dimensions
-        - input.json: JSON file with number of stories, replacement cost, plan area
+        - general_inputs.json: egress, occupancy, dimensions, number of stories, replacement cost, plan area
     '''
 
     from copy import deepcopy
-
-    with open(os.path.join(model_dir, 'input.json')) as file:
-        pelicun_inputs = json.load(file)  
-
-    ############ Pull basic model info from Pelicun Inputs
-    num_stories = int(pelicun_inputs['DL']['Asset']['NumberOfStories'])
-    if 'Repair' in pelicun_inputs['DL']['Losses']:
-        total_cost = float(pelicun_inputs['DL']['Losses']['Repair']['ReplacementCost']['Median'])
-    else:
-        total_cost = float(pelicun_inputs['DL']['Losses']['BldgRepair']['ReplacementCost']['Median'])
-    plan_area = float(pelicun_inputs['DL']['Asset']['PlanArea'])
 
     ########### Load Pelicun files
     # pull components 
@@ -624,6 +612,11 @@ def convert_pelicun(model_dir):
     # general inputs
     with open(os.path.join(model_dir, 'general_inputs.json')) as file:
         general_inputs = json.load(file)
+
+    ############ Pull basic model info from Pelicun Inputs
+    num_stories = int(general_inputs['number_of_stories'])
+    total_cost = float(general_inputs['replacement_cost_median'])
+    plan_area = float(general_inputs['plan_area_ft2'])
 
     # remove Units row (case insensitive)
     # the first column is the cmp-loc-dir-ds or dv-loss-dmg-ds-loc-dir indicator
