@@ -580,8 +580,6 @@ def convert_pelicun(model_dir):
         - general_inputs.json: egress, occupancy, dimensions, number of stories, replacement cost, plan area
     '''
 
-    from copy import deepcopy
-
     ########### Load Pelicun files
     # pull components 
     comps = pd.read_csv(os.path.join(model_dir, 'CMP_QNT.csv'))
