@@ -18,7 +18,7 @@ classifiers = [
   "Operating System :: OS Independent",
 ]
 dependencies = [
-  "numpy",
+  "numpy~=2.0",
   "pandas",
   "scipy",
   "matplotlib",
@@ -28,9 +28,18 @@ dependencies = [
 [project.scripts]
 atc138 = "atc138.cli:main"
 
+[project.optional-dependencies]
+test = ["pytest>=7.0"]
+
 [project.urls]
 "Homepage" = "https://github.com/NHERI-SimCenter/Functional-Recovery-Python"
 "Bug Tracker" = "https://github.com/NHERI-SimCenter/Functional-Recovery-Python/issues"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["tests"]
+markers = [
+    "integration: long-running tests comparing full model runs against reference data",
+]

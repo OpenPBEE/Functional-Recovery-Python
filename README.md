@@ -155,6 +155,7 @@ The file(s) listed below contain data that is optional for the assessment. If th
 The Python file listed below defines additional assessment inputs based on set of default values. Place this file in the input directory of your analysis.
  - **optional_inputs.json**: Defines default variables for the impedance_options, repair_time_options, functionality_options, and regional_impact variables listed in the inputs schema.
 
+<!-- How does a user modify the static tables (now data) without touching the original data files? -->
 
 ### Static Data
 The csv tables listed below contain default component, damage state, system, and tenant function attributes that can be used to populate the required assessment inputs according to the methodology. These are located in the _data_ directory. To override the static data with custom versions, copy modified sheets and place them in the input directory.
@@ -189,4 +190,34 @@ example_dir = './examples/RCSW_4story_pelicun'
 output_dir = './examples/RCSW_4story_pelicun/output'
 
 driver.run_analysis(example_dir, output_dir, seed=985)
+```
+
+## Testing
+
+Install the package with test dependencies:
+
+```bash
+pip install -e ".[test]"
+```
+
+Run the integration tests, which compare Python outputs against stored reference data for each model in `tests/fixtures/models/`:
+
+```bash
+pytest tests/test_integration.py -v
+```
+
+Integration tests are marked with `@pytest.mark.integration` and can be filtered:
+
+```bash
+# Run only integration tests
+pytest -m integration
+
+# Skip integration tests
+pytest -m "not integration"
+```
+
+The comparison engine can also be used standalone for detailed inspection:
+
+```bash
+python tests/compare_runs.py <reference_dir> <python_output_dir>
 ```
