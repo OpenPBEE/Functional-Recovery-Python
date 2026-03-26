@@ -155,8 +155,6 @@ The file(s) listed below contain data that is optional for the assessment. If th
 The Python file listed below defines additional assessment inputs based on set of default values. Place this file in the input directory of your analysis.
  - **optional_inputs.json**: Defines default variables for the impedance_options, repair_time_options, functionality_options, and regional_impact variables listed in the inputs schema.
 
-<!-- How does a user modify the static tables (now data) without touching the original data files? -->
-
 ### Static Data
 The csv tables listed below contain default component, damage state, system, and tenant function attributes that can be used to populate the required assessment inputs according to the methodology. These are located in the _data_ directory. To override the static data with custom versions, copy modified sheets and place them in the input directory.
  - **component_attributes.csv**: Attributes of components in the FEMA P-58 fragility database that are required for the functional recovery assessment.
