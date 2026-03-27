@@ -503,6 +503,36 @@ def save_json(data, path):
     with open(path, "w") as f:
         json.dump(data, f, indent=2)
 
+# SI conversion factors for units relevant to FEMA P-58 components.
+# To convert from unit_a to unit_b: value_b = value_a * (factor_a / factor_b)
+_UNIT_TO_SI = {
+    # Area (to m²)
+    'sf': 0.09290304, 'SF': 0.09290304, 'ft2': 0.09290304, 'm2': 1.0,
+    # Length (to m)
+    'lf': 0.3048, 'LF': 0.3048, 'ft': 0.3048, 'm': 1.0,
+    # Count (unitless)
+    'ea': 1.0, 'EA': 1.0, 'each': 1.0,
+}
+
+
+def _pelicun_to_p58_factor(pelicun_unit, atc138_unit, unit_qty):
+    """Compute factor to convert a Pelicun physical quantity to P-58 unit count.
+
+    value_in_p58_units = value_from_pelicun * factor
+
+    When both units belong to the same physical dimension (area, length, or
+    count), the factor converts between unit systems and then divides by the
+    P-58 block size (unit_qty).  When the dimensions are incompatible (e.g.
+    Pelicun reports EA but ATC-138 expects amp/ton/cfm), the Pelicun value
+    is assumed to already represent a P-58 unit count and the factor is 1.0.
+    """
+    p_si = _UNIT_TO_SI.get(pelicun_unit)
+    a_si = _UNIT_TO_SI.get(atc138_unit)
+    if p_si is not None and a_si is not None:
+        return (p_si / a_si) / unit_qty
+    return 1.0
+
+
 def clean_frag_id(frag_id: str) -> str:
     """
     Splits by ".", 
@@ -565,6 +595,10 @@ def story_mask(location, num_stories):
         start, end = map(int, location.split("--"))
         return (stories >= start) & (stories <= end)
 
+    if ',' in location:
+        loc_vec = np.array(location.split(','), dtype=int)
+        return np.isin(stories, loc_vec)
+
     loc_vec = np.array(location.split(), dtype=int)
     return np.isin(stories, loc_vec)
 
@@ -620,6 +654,8 @@ def convert_pelicun(model_dir):
     # ds attributes
     static_data_dir = os.path.join(os.path.dirname(__file__), 'data')
     ds_attributes = load_custom_static_tables(model_dir, static_data_dir, 'damage_state_attribute_mapping.csv')
+    component_attributes = load_custom_static_tables(
+        model_dir, static_data_dir, 'component_attributes.csv')
 
     # general inputs
     with open(os.path.join(model_dir, 'general_inputs.json')) as file:
@@ -710,6 +746,31 @@ def convert_pelicun(model_dir):
     else:
         eng_cost_ratio = general_inputs['engineering_cost_ratio']
 
+    # Convert Pelicun worker-days to calendar days for replacement time.
+    # Use the same max-workers formula as the repair scheduler, but
+    # cap the effective area at a limited number of parallel floors to consider
+    # that construction proceeds upward — a 40-story building will not have all
+    # floors staffed simultaneously.
+    _MAX_PARALLEL_FLOORS = 6
+    _default_rto = json.load(
+        open(os.path.join(static_data_dir, 'default_inputs.json'))
+    )['repair_time_options']
+    _wkr_per_sf = _default_rto['max_workers_per_sqft_building']
+    _wkr_min = _default_rto['max_workers_building_min']
+    _wkr_max = _default_rto['max_workers_building_max']
+
+    _effective_floors = min(num_stories, _MAX_PARALLEL_FLOORS)
+    _effective_area = _effective_floors * plan_area
+    _max_workers = min(
+        max(int(_effective_area * _wkr_per_sf + 10), _wkr_min),
+        _wkr_max,
+    )
+    _replacement_time_days = np.where(
+        replacement_mask,
+        DV_summary["repair_time-parallel"] / _max_workers,
+        np.nan,
+    )
+
     damage_consequences = dict(
         repair_cost_ratio_total=(
             DV_summary["repair_cost-"] / total_cost
@@ -717,11 +778,7 @@ def convert_pelicun(model_dir):
         repair_cost_ratio_engineering=(
             DV_summary["repair_cost-"] / total_cost * eng_cost_ratio
         ).tolist(),
-        simulated_replacement_time=np.where(
-            replacement_mask,
-            DV_summary["repair_time-parallel"],
-            np.nan,
-        ).tolist(),
+        simulated_replacement_time=_replacement_time_days.tolist(),
     )
 
     save_json(
@@ -809,6 +866,22 @@ def convert_pelicun(model_dir):
     comps = comps[comps['tmp_clean_id'].isin(list(comp_ds_list['comp_id']))]
     comps = comps.drop('tmp_clean_id', axis=1)
 
+    # Build per-component conversion factor: Pelicun physical qty -> P-58 units
+    comp_conversion = {}
+    for _, _comp in comps.iterrows():
+        _fid = clean_frag_id(_comp["ID"])
+        _pelicun_unit = str(_comp["Units"]).strip()
+        _attr_match = component_attributes[
+            component_attributes['fragility_id'] == _fid
+        ]
+        if _attr_match.empty:
+            comp_conversion[_fid] = 1.0
+            continue
+        _attr = _attr_match.iloc[0]
+        comp_conversion[_fid] = _pelicun_to_p58_factor(
+            _pelicun_unit, str(_attr['unit']).strip(), float(_attr['unit_qty'])
+        )
+
     for _, comp in comps.iterrows():
 
         # clean periods from ID, then replace with underscore to match convention
@@ -831,7 +904,8 @@ def convert_pelicun(model_dir):
             & np.isin(comp_population.index.get_level_values("dir"), dir_vec)
         )
 
-        comp_population.loc[mask, frag_id] += float(comp["Theta_0"])
+        _cfid = clean_frag_id(comp['ID'])
+        comp_population.loc[mask, frag_id] += float(comp["Theta_0"]) * comp_conversion.get(_cfid, 1.0)
 
     comp_population.reset_index().to_csv(
         os.path.join(model_dir, "comp_population.csv"),
@@ -928,7 +1002,8 @@ def convert_pelicun(model_dir):
         idx = lookup_index[key]
 
         dmg_data = np.array(damage[col].fillna(0), dtype=float)
-        simulated_damage["story"][story]["qnt_damaged"][:, idx] += dmg_data
+        qnt_factor = comp_conversion.get(frag_id, 1.0)
+        simulated_damage["story"][story]["qnt_damaged"][:, idx] += dmg_data * qnt_factor
 
         if col in DV_time.columns:
             repair_time_data = DV_time[col].fillna(0).astype(float)
@@ -947,8 +1022,7 @@ def convert_pelicun(model_dir):
         # Direction-specific
         simulated_damage["story"][story][
             f"qnt_damaged_dir_{dir_id}"
-        ][:, idx] += dmg_data
-
+        ][:, idx] += dmg_data * qnt_factor
 
         # add component quantity to simulated_damage
         for _, comp in comps.iterrows():
@@ -964,7 +1038,7 @@ def convert_pelicun(model_dir):
                 if not is_story:
                     continue
 
-                simulated_damage["story"][s_idx]["num_comps"][frag_matches] += theta
+            simulated_damage["story"][s_idx]["num_comps"][frag_matches] += theta * comp_conversion.get(frag_id, 1.0)
 
     ############# convert to json-serializable and save
     # Convert numpy arrays to lists 

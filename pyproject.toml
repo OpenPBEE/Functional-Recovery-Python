@@ -38,6 +38,9 @@ test = ["pytest>=7.0"]
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+atc138 = ["data/*"]
+
 [tool.pytest.ini_options]
 pythonpath = ["tests"]
 markers = [
