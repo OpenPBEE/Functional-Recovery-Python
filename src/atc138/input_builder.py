@@ -702,6 +702,8 @@ def convert_pelicun(model_dir):
     if 'typ_struct_bay_length_ft' in general_inputs:
         struct_bay_len = general_inputs["typ_struct_bay_length_ft"]
     else:
+        print('Input parameter "typ_struct_bay_length_ft" should be specified with length of structural bay.')
+        print('Using "typ_struct_bay_area_ft" as a length parameter.')
         struct_bay_len = general_inputs["typ_struct_bay_area_ft"]
 
     building_model = dict(
