@@ -130,18 +130,46 @@ def build_simulated_inputs(model_dir):
     
     # 3. List of component and damage states ids associated with the damage
     comp_ds_list = pd.read_csv(os.path.join(model_dir, 'comp_ds_list.csv'))
-    
+
     # 4. List of component and damage states in the performance model
     comp_population = pd.read_csv(os.path.join(model_dir, 'comp_population.csv'))
     comp_header = list(comp_population.columns)
-    comp_list = np.array(comp_header[2:len(comp_header)])
-    comp_list= np.char.replace(np.array(comp_list),'_','.')
+
+    # component IDs from comp_population
+    comp_list = np.array(comp_header[2:])
+    comp_list = np.char.replace(comp_list, '_', '.')
     comp_list = comp_list.tolist()
-    # Remove suffixes from repated entries
+
+    # Remove suffixes from repeated entries
     for i in range(len(comp_list)):
         if len(comp_list[i]) > 10:
-            comp_list[i]=comp_list[i][0:10]
+            comp_list[i] = comp_list[i][0:10]
+
+    # Default: Skip components that do not have attributes 
+    valid_fragility_ids = set(component_attributes['fragility_id'].astype(str))
+    missing_comp_ids = sorted(set([cid for cid in comp_list if cid not in valid_fragility_ids]))
+
+    if missing_comp_ids:
+        print(
+            "Warning: skipping components with missing component attributes: "
+            + ", ".join(missing_comp_ids)
+        )
+
+    # Keep only valid components
+    valid_mask = [cid in valid_fragility_ids for cid in comp_list]
+    valid_cols = comp_header[:2] + [col for col, keep in zip(comp_header[2:], valid_mask) if keep]
+
+    comp_population = comp_population.loc[:, valid_cols].copy()
+    comp_list = [cid for cid in comp_list if cid in valid_fragility_ids]
+
+    # We also need to filter simulated_damage 
+    comp_ds_keep_mask = comp_ds_list['comp_id'].isin(comp_list).to_numpy()
+
+    comp_ds_list = comp_ds_list[comp_ds_keep_mask].copy()
+    comp_ds_list = comp_ds_list.reset_index(drop=True)
+
     building_model['comps'] = {'comp_list' : comp_list} #FZ# Component list has been added to building model dictionary.
+    
     
     # Go through each story and assign component populations
     drs = np.unique(np.array(comp_population['dir']))
@@ -217,10 +245,37 @@ def build_simulated_inputs(model_dir):
     
     
     # 3. Simulated component damage per tenant unit for each realization of the monte carlo simulation
-    # 3. Simulated component damage per tenant unit for each realization of the monte carlo simulation
     with open(os.path.join(model_dir, 'simulated_damage.json'), 'r') as f:
         sim_damage = json.load(f)
+
     
+    # Filter simulated damage arrays to match filtered comp_ds_list
+    if not np.all(comp_ds_keep_mask):
+        tenant_keys = [
+            'repair_cost', 'num_comps', 'qnt_damaged',
+            'qnt_damaged_side_1', 'qnt_damaged_side_2',
+            'qnt_damaged_side_3', 'qnt_damaged_side_4',
+            'worker_days'
+        ]
+        story_keys = ['qnt_damaged_dir_1', 'qnt_damaged_dir_2', 'qnt_damaged_dir_3']
+
+        if 'tenant_units' in sim_damage:
+            for tu in range(len(sim_damage['tenant_units'])):
+                for key in tenant_keys:
+                    if key in sim_damage['tenant_units'][tu]:
+                        arr = np.array(sim_damage['tenant_units'][tu][key])
+                        if arr.ndim == 2:
+                            sim_damage['tenant_units'][tu][key] = arr[:, comp_ds_keep_mask].tolist()
+                        elif arr.ndim == 1:
+                            sim_damage['tenant_units'][tu][key] = arr[comp_ds_keep_mask].tolist()
+
+        if 'story' in sim_damage:
+            for s in range(len(sim_damage['story'])):
+                for key in story_keys:
+                    if key in sim_damage['story'][s]:
+                        arr = np.array(sim_damage['story'][s][key])
+                        sim_damage['story'][s][key] = arr[:, comp_ds_keep_mask].tolist()
+        
     # Write in individual dictionaries part of larger 'damage' dictionary 
     damage = {'story' : {}, 'tenant_units' : {}}
     
