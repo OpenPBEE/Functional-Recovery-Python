@@ -543,7 +543,7 @@ def clean_frag_id(frag_id: str) -> str:
     parts = frag_id.split('.')
     return '.'.join(["".join(parts[:-1]), parts[-1]])
 
-def reorder_dv_cols(df, dv_tag_meta, ordered_tags=("dmg","loc","dir","ds")):
+def reorder_dv_cols(df, dv_tag_meta, ordered_tags=("loc","dir","ds")):
     """
     Rename columns from dv-loss-dmg-ds-loc-dir -> dmg-loc-dir-ds.
 
@@ -560,7 +560,15 @@ def reorder_dv_cols(df, dv_tag_meta, ordered_tags=("dmg","loc","dir","ds")):
     pandas.DataFrame
         DataFrame with renamed columns.
     """
-    keep_idx = [dv_tag_meta.index(k) for k in ordered_tags]
+    if "cmp" in dv_tag_meta:
+        first_tag = "cmp"
+    elif "dmg" in dv_tag_meta:
+        first_tag = "dmg"
+    elif "loss" in dv_tag_meta:
+        first_tag = "loss"
+
+    all_ordered_tags = (first_tag,) + tuple(ordered_tags)
+    keep_idx = [dv_tag_meta.index(k) for k in all_ordered_tags]
 
     new_cols = []
     for col in df.columns:
@@ -660,6 +668,9 @@ def convert_pelicun(model_dir):
     # Get meta-naming convention, then filter to just cmp columns
     # (case insensitive)
     tag_name_list = damage.columns[0].lower().split('-')
+    # if upper left meta tag not found, raise error to provide
+    reqd_tags = ['cmp', 'loc', 'dir', 'ds']
+    assert set(reqd_tags) <= set(tag_name_list), "Missing meta-tag in index column (i.e. 'cmp-loc-dir-ds' must be provided at minimum)"
     frag_cols = damage.columns[
         damage.columns.str.match(r"^[B-F]")
     ]
@@ -670,6 +681,10 @@ def convert_pelicun(model_dir):
 
     # Filter DV columns
     dv_tag_meta = dvs.columns[0].lower().split('-')
+    reqd_tags = ['loc', 'dir', 'ds']
+    accepted_first_tag = ['cmp', 'dmg', 'loss']
+    assert any(item in accepted_first_tag for item in dv_tag_meta), "Missing meta-tag in index column (i.e. 'cmp/dmg/loss-loc-dir-ds' must be provided at minimum)"
+    assert set(reqd_tags) <= set(dv_tag_meta), "Missing meta-tag in index column (i.e. 'cmp/dmg/loss-loc-dir-ds' must be provided at minimum)"
     DV_time = dvs.loc[:, dvs.columns.str.upper().str.startswith("TIME")]
     DV_cost = dvs.loc[:, dvs.columns.str.upper().str.startswith("COST")]
 
@@ -877,6 +892,10 @@ def convert_pelicun(model_dir):
         comp_conversion[_fid] = _pelicun_to_p58_factor(
             _pelicun_unit, str(_attr['unit']).strip(), float(_attr['unit_qty'])
         )
+
+    # force read as strings to assist string-based Location and Direction parser
+    comps['Location'] = comps['Location'].astype("string")
+    comps['Direction'] = comps['Direction'].astype("string")
 
     for _, comp in comps.iterrows():
 
