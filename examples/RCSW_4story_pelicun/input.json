@@ -1,0 +1,279 @@
+{
+    "Applications": {
+        "DL": {
+            "Application": "Pelicun3",
+            "ApplicationData": {
+            }
+        },
+        "EDP": {
+            "Application": "StandardEarthquakeEDP",
+            "ApplicationData": {
+            }
+        },
+        "Events": [
+            {
+                "Application": "StochasticGroundMotion",
+                "ApplicationData": {
+                    "modelName": "VlachosSiteSpecificEQ",
+                    "seed": "RV.StochasticSeed"
+                },
+                "EventClassification": "Earthquake"
+            }
+        ],
+        "Modeling": {
+            "Application": "MDOF_BuildingModel",
+            "ApplicationData": {
+            }
+        },
+        "Performance": {
+            "Application": "None",
+            "ApplicationData": {
+            }
+        },
+        "Simulation": {
+            "Application": "OpenSees-Simulation",
+            "ApplicationData": {
+            }
+        },
+        "UQ": {
+            "Application": "Dakota-UQ",
+            "ApplicationData": {
+            }
+        }
+    },
+    "DL": {
+        "Asset": {
+            "ComponentAssignmentFile": "{Current_Dir}/CMP_QNT.csv",
+            "ComponentDatabase": "FEMA P-58",
+            "ComponentDatabasePath": "{Current_Dir}/custom_component_fragilities.csv",
+            "NumberOfStories": "4",
+            "OccupancyType": "Commercial Office",
+            "PlanArea": "14400"
+        },
+        "Damage": {
+            "DamageProcess": "FEMA P-58",
+            "IrreparableDamage": {
+                "DriftCapacityLogStd": "0.3",
+                "DriftCapacityMedian": "0.01"
+            }
+        },
+        "Demands": {
+            "Calibration": {
+                "ALL": {
+                    "DistributionFamily": "lognormal"
+                }
+            },
+            "DemandFilePath": "{Current_Dir}/example_edp.csv",
+            "InferResidualDrift": {
+                "1": "0.005",
+                "2": "0.005",
+                "method": "FEMA P-58"
+            },
+            "SampleSize": "500"
+        },
+        "Losses": {
+            "Repair": {
+                "ConsequenceDatabase": "FEMA P-58",
+                "DecisionVariables": {
+                    "Carbon": false,
+                    "Cost": true,
+                    "Energy": false,
+                    "Time": true
+                },
+                "MapApproach": "Automatic",
+                "ReplacementCost": {
+                    "Median": "6912000",
+                    "Unit": "USD_2011"
+                },
+                "ReplacementTime": {
+                    "Median": "720",
+                    "Unit": "worker_day"
+                }
+            }
+        },
+        "Outputs": {
+            "Asset": {
+                "Sample": true,
+                "Statistics": true
+            },
+            "Damage": {
+                "GroupedSample": true,
+                "GroupedStatistics": true,
+                "Sample": true,
+                "Statistics": true
+            },
+            "Demand": {
+                "Sample": true,
+                "Statistics": true
+            },
+            "Format": {
+                "CSV": true,
+                "JSON": false
+            },
+            "Loss": {
+                "Repair": {
+                    "AggregateSample": true,
+                    "AggregateStatistics": true,
+                    "GroupedSample": true,
+                    "GroupedStatistics": true,
+                    "Sample": true,
+                    "Statistics": true
+                }
+            }
+        }
+    },
+    "DefaultValues": {
+        "driverFile": "driver",
+        "edpFiles": [
+            "EDP.json"
+        ],
+        "filenameAIM": "AIM.json",
+        "filenameDL": "AIM.json",
+        "filenameEDP": "EDP.json",
+        "filenameEVENT": "EVENT.json",
+        "filenameSAM": "SAM.json",
+        "filenameSIM": "SIM.json",
+        "rvFiles": [
+            "AIM.json",
+            "SAM.json",
+            "EVENT.json",
+            "SIM.json"
+        ],
+        "workflowInput": "scInput.json",
+        "workflowOutput": "EDP.json"
+    },
+    "EDP": {
+    },
+    "Events": [
+        {
+            "EventClassification": "Earthquake",
+            "modelName": "Vlachos et al. (2018)",
+            "momentMagnitude": 7,
+            "protectModel": true,
+            "ruptureDist": 40,
+            "seed": "RV.StochasticSeed",
+            "type": "StochasticMotion",
+            "vs30": 500
+        }
+    ],
+    "GeneralInformation": {
+        "NumberOfStories": 4,
+        "PlanArea": 14400,
+        "StructureType": "RM1",
+        "YearBuilt": 1990,
+        "depth": 150,
+        "height": 12,
+        "location": {
+            "latitude": 37.426,
+            "longitude": -122.171
+        },
+        "name": "",
+        "planArea": 14400,
+        "stories": 4,
+        "units": {
+            "force": "kips",
+            "length": "ft",
+            "temperature": "C",
+            "time": "sec"
+        },
+        "width": 144
+    },
+    "Modeling": {
+        "Bx": 0.1,
+        "By": 0.1,
+        "Fyx": 1000000,
+        "Fyy": 1000000,
+        "Krz": 10000000000,
+        "Kx": 100,
+        "Ky": 100,
+        "ModelData": [
+            {
+                "Fyx": 1000000,
+                "Fyy": 1000000,
+                "Ktheta": 10000000000,
+                "bx": 0.1,
+                "by": 0.1,
+                "height": 3,
+                "kx": 100,
+                "ky": 100,
+                "weight": 144
+            },
+            {
+                "Fyx": 1000000,
+                "Fyy": 1000000,
+                "Ktheta": 10000000000,
+                "bx": 0.1,
+                "by": 0.1,
+                "height": 3,
+                "kx": 100,
+                "ky": 100,
+                "weight": 144
+            },
+            {
+                "Fyx": 1000000,
+                "Fyy": 1000000,
+                "Ktheta": 10000000000,
+                "bx": 0.1,
+                "by": 0.1,
+                "height": 3,
+                "kx": 100,
+                "ky": 100,
+                "weight": 144
+            },
+            {
+                "Fyx": 1000000,
+                "Fyy": 1000000,
+                "Ktheta": 10000000000,
+                "bx": 0.1,
+                "by": 0.1,
+                "height": 3,
+                "kx": 100,
+                "ky": 100,
+                "weight": 144
+            }
+        ],
+        "dampingRatio": 0.02,
+        "height": 3,
+        "massX": 0,
+        "massY": 0,
+        "numStories": 4,
+        "randomVar": [
+        ],
+        "responseX": 0,
+        "responseY": 0,
+        "type": "MDOF_BuildingModel",
+        "weight": 144
+    },
+    "Performance": {
+    },
+    "Simulation": {
+        "Application": "OpenSees-Simulation",
+        "algorithm": "Newton",
+        "analysis": "Transient -numSubLevels 2 -numSubSteps 10",
+        "convergenceTest": "NormUnbalance 1.0e-2 10",
+        "dampingModel": "Rayleigh Damping",
+        "firstMode": 1,
+        "integration": "Newmark 0.5 0.25",
+        "modalRayleighTangentRatio": 0,
+        "numModesModal": 1,
+        "rayleighTangent": "Initial",
+        "secondMode": 0,
+        "solver": "Umfpack"
+    },
+    "UQ": {
+        "parallelExecution": true,
+        "samplingMethodData": {
+            "method": "Monte Carlo",
+            "samples": 500,
+            "seed": 985
+        },
+        "saveWorkDir": true,
+        "uqType": "Forward Propagation"
+    },
+    "localAppDir": "X:/Documents/ubc_postdoc/teaching/PBE_Windows_Download/PBE_Windows_Download",
+    "randomVariables": [
+    ],
+    "remoteAppDir": "X:/Documents/ubc_postdoc/teaching/PBE_Windows_Download/PBE_Windows_Download",
+    "runType": "runningLocal",
+    "workingDir": "{Current_Dir}/C:/Users/giraf/Documents/PBE/LocalWorkDir"
+}

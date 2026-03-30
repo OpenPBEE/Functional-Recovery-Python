@@ -1,3 +1,12 @@
+'''
+Individual subfunctions for generating plots:
+- component/system impedance heatmaps
+- histograms
+- lineplots of recovery per system
+- gantt chart
+- recovery trajectory breakdowns
+'''
+
 def plt_heatmap_breakdowns(recovery, plot_dir):
     '''Plot the time and percent of realizations that each system and/or 
     component is impeding function as a heatmap and as lineplots
@@ -157,7 +166,7 @@ def plt_heatmap_breakdowns(recovery, plot_dir):
     return
 
 
-def plt_histograms( recovery, plot_dir ):
+def plt_histograms(recovery, plot_dir):
     
     '''Plot all realizations of building level recovery as a histogram
     
@@ -197,7 +206,7 @@ def plt_histograms( recovery, plot_dir ):
     return
 
 
-def plt_recovery_trajectory( recovery, full_repair_time, plot_dir):
+def plt_recovery_trajectory(recovery, full_repair_time, plot_dir):
     '''Plot mean recovery trajectories
     
     Parameters
@@ -247,8 +256,8 @@ def plt_recovery_trajectory( recovery, full_repair_time, plot_dir):
     plt.xlabel('Days After Earthquake')
     plt.ylabel('Fraction of Floor Area')
     plt.legend(loc='upper left')
+    plt.title('Mean Recovery Trajectories')
     plt.grid()
-    plt.show()
     
     plt.savefig(plot_dir + 'recovery_trajectory.png', dpi=300)
     
@@ -266,6 +275,27 @@ def plt_recovery_trajectory( recovery, full_repair_time, plot_dir):
     plt.grid()    
 
     plt.savefig(plot_dir + 'functional_recovery_trajectories.png', dpi=300)
+
+    med = np.median(np.array(recovery['reoccupancy']['recovery_trajectory']['recovery_day']), axis=0)
+    per_10 = np.percentile(np.array(recovery['reoccupancy']['recovery_trajectory']['recovery_day']), 10, axis=0)
+    per_90 = np.percentile(np.array(recovery['reoccupancy']['recovery_trajectory']['recovery_day']), 90, axis=0)
+    full = np.mean(full_repair_time)
+    level_of_repair = recovery['reoccupancy']['recovery_trajectory']['percent_recovered']
+
+    plt.figure(figsize=(6,4))
+    for i in range(len(recovery['reoccupancy']['recovery_trajectory']['recovery_day'])):
+        plt.plot(recovery['reoccupancy']['recovery_trajectory']['recovery_day'][i] , level_of_repair, color = 'lightgrey', linewidth = 0.5)
+    plt.plot(med, level_of_repair,'r-', linewidth = 1.5, label= 'Median')
+    plt.plot(per_10, level_of_repair,'b--', linewidth = 1.0, label= '10th percentile')
+    plt.plot(per_90, level_of_repair,'b--', linewidth = 1.0, label= '90th percentile')
+    plt.xlim([0,np.ceil((max(max(recovery['reoccupancy']['recovery_trajectory']['recovery_day'])))/10)*10])
+    plt.title('Reoccupancy Trajectories')
+    plt.xlabel('Days After Earthquake')
+    plt.ylabel('Fraction of Floor Area')
+    plt.legend(loc='upper left')
+    plt.grid()    
+
+    plt.savefig(plot_dir + 'reoccupancy_trajectories.png', dpi=300)
     
     return
 
@@ -350,10 +380,11 @@ def plt_gantt_chart(p_idx, recovery, full_repair_time, workers, schedule, impede
     sys_repair_times = []
     labs = []
     for s in range(len(sys)): 
-        duration = schedule['full']['repair_complete_day']['per_system'][p_idx][s] - schedule['full']['repair_start_day']['per_system'][p_idx][s]
-        if duration > 0:
-            sys_repair_times.append([schedule['full']['repair_start_day']['per_system'][p_idx][s], duration])
-            labs.append(sys[s][0].upper() + sys[s][1:len(sys[s])] + ' Repairs')
+        end_day = schedule['full']['repair_complete_day']['per_system'][p_idx][s]
+        start_day = schedule['full']['repair_start_day']['per_system'][p_idx][s]
+        duration = end_day - start_day
+        sys_repair_times.append([start_day, duration])
+        labs.append(sys[s][0].upper() + sys[s][1:len(sys[s])] + ' Repairs')
 
     labs.reverse()    
     labs_rep = labs

@@ -1,0 +1,9 @@
+{
+    "num_entry_doors": 2,
+    "typ_struct_bay_area_ft": 169,
+    "typ_story_ht_ft": 10,
+    "length_side_1_ft": 120,
+    "length_side_2_ft": 120,
+    "peak_occ_rate": 0.0031,
+	"engineering_cost_ratio": 0.10
+}

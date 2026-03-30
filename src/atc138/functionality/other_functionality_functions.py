@@ -953,6 +953,7 @@ def fn_tenant_function( damage, building_model, system_operation_day,
 
     import numpy as np
     import sys
+    import warnings
     
     '''Subfunction'''
     def subsystem_recovery(subsystem, damage, repair_complete_day, 
@@ -1110,8 +1111,10 @@ def fn_tenant_function( damage, building_model, system_operation_day,
                 num_elev_pgs = len(np.unique(damage['comp_ds_table']['comp_idx'][damage['fnc_filters']['elevators']]))
                 is_sim_ds = any(damage['comp_ds_table']['is_sim_ds'][damage['fnc_filters']['elevators']])
                 if (num_elev_pgs > 1) and is_sim_ds:
-                    sys.exit('Error! PBEE_Recovery:Function','Elevator Function check does not handle multiple performance groups with simultaneous damage states')
-                
+                    # sys.exit('Error! PBEE_Recovery:Function: Elevator Function check does not handle multiple performance groups with simultaneous damage states')
+                    warnings.warn('Elevator function check does not handle multiple performance groups with simultaneous damage states.')
+                    print('Ignoring simultaneous DS. Consider using alternative elevator components without simultaneous damage states.')
+                    damage['comp_ds_table']['is_sim_ds'][damage['fnc_filters']['elevators']] = 0 # turn off is_sim_ds flag
     
                 # quantifty the number of occupancy needing to use the elevators
                 # all occupants above the first floor will try to use the elevators

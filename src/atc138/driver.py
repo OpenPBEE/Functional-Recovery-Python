@@ -1,4 +1,4 @@
-def run_analysis(input_dir, output_dir, seed=None):
+def run_analysis(input_dir, output_dir, seed=None, force_rebuild=False):
 
     '''This script facilitates the performance based functional recovery and
     reoccupancy assessment of a single building for a single intensity level
@@ -24,6 +24,10 @@ def run_analysis(input_dir, output_dir, seed=None):
     seed: int
         Random seed to be passed to the Numpy random engine. Default behavior
         is set as None and will not pass a random seed.
+
+    force_rebuild: bool
+        Flag to force rebuilding of simulated_inputs.json even if existing file is found. 
+        Default is set to False.
     """'''
     
     import time
@@ -47,15 +51,21 @@ def run_analysis(input_dir, output_dir, seed=None):
     ## 2. Define User Inputs
     # Input/Output directories are passed as arguments
     
+    # set a seed
+    # this seed propagates through the entire subfunctions
+    # so if subfunction requires a distinct random variate, a seed instance will have to be used instead
+    if seed is not None:
+        np.random.seed(seed)
+    
     ## 3. Load FEMA P-58 performance model data and simulated damage and loss
     # Check if simulated_inputs.json exists, if not build it
     sim_inputs_path = os.path.join(input_dir, 'simulated_inputs.json')
     
-    if os.path.exists(sim_inputs_path):
+    if os.path.exists(sim_inputs_path) and not force_rebuild:
         f = open(sim_inputs_path)
         simulated_inputs = json.load(f)
     else:
-        print(f"simulated_inputs.json not found in {input_dir}. Building from raw inputs...")
+        print(f"Building simulated_inputs.json from raw inputs...")
         from .input_builder import build_simulated_inputs
         simulated_inputs = build_simulated_inputs(input_dir)
         
@@ -128,12 +138,6 @@ def run_analysis(input_dir, output_dir, seed=None):
     
     ## 5. Run Recovery Method
     from .engine import main_PBEE_recovery
-
-    # set a seed
-    # this seed propagates through the entire subfunctions
-    # so if subfunction requires a distinct random variate, a seed instance will have to be used instead
-    if seed is not None:
-        np.random.seed(seed)
     
     functionality, damage_consequences = main_PBEE_recovery(damage, 
                                                             damage_consequences, 

@@ -1,6 +1,50 @@
+def plot_results(outputs_dir, p_gantt=50):
+    """
+    This method wraps `main_plot_functionality` to call all functionality/reoccupancy recovery
+    plots by requiring only the directory of the output.
+    
+    Parameters
+    ----------
+    output dir: string
+        Directory of outputs
+    p_gantt: float
+        percentile of functional recovery time to plot for the gantt chart
+        default: 50 = 50th percentile of functional recovery time (median)
+    
+    """
+    import os
+    import json
+    import pandas as pd
+    
+    # from plotters import main_plot_functionality
+    # Plot Functional Recovery Plots For a Single Model and Single Intensity
+    
+    ## Define User inputs
+    
+    # Load systems information
+    systems = pd.read_csv(os.path.join(os.path.dirname(__file__), os.pardir, 'src', 'atc138', 'data', 'systems.csv'))
+    systems = systems['name']
+    
+    # outputs will save to a directory with this name
+    plot_dir = outputs_dir +'/plots' # Directory where the plots will be saved
+    
+    ## Import Packages
+    
+    ## Load Assessment Output Data
+    f = open(os.path.join(outputs_dir, 'recovery_outputs.json'))
+    functionality= json.load(f)
+    
+    ## Create plot for single intensity assessment of PBEE Recovery
+    main_plot_functionality(functionality, plot_dir, p_gantt, systems)
+
 def main_plot_functionality(functionality, save_dir, p_gantt, systems):
-    '''Plot function and occupancy loss and recovery at for a single model at a 
-    single intensity levels
+    '''
+    This method calls all functionality and occupancy loss and recovery plots, including the following
+    - Component and system-level breakdowns of hinderance to reoccupancy and functional status per day
+    - Distribution of realizations achieving reoccupancy and functional status per day
+    - Mean and per-realization breakdown of recovery trajectories
+    - Gantt chart of impeding factors, repair work, number of workers, 
+    and recovery status of building per day for the realization with `p_gantt`-th percentile of functional recovery day. 
     
     Parameters
     ----------
@@ -43,7 +87,7 @@ def main_plot_functionality(functionality, save_dir, p_gantt, systems):
     
     ## Plot Mean Recovery Trajectories
     plot_dir = os.path.join(save_dir,'recovery_trajectories')
-    other_plot_functions.plt_recovery_trajectory( recovery, full_repair_time, plot_dir)
+    other_plot_functions.plt_recovery_trajectory(recovery, full_repair_time, plot_dir)
     
     # Plot Gantt Charts
     plot_dir = os.path.join(save_dir,'gantt_charts')

@@ -1,0 +1,92 @@
+ID,Units,Location,Direction,Theta_0,Blocks,Family,Theta_1,Comment
+B.20.22.001,SF,4,"1,2",4320,144,,0.6,"B2022.001    Curtain Walls - Generic Midrise Stick-Built Curtain wall, Config: Monolithic, Lamination: Unknown, Glass Type: Unknown, Details: Aspect ratio = 6:5,  Other details Unknown"
+B.30.11.011,SF,4,0,3888,38,,1.3,"B3011.011    Concrete tile roof, tiles secured and compliant with UBC94"
+C.10.11.001a,LF,4,"1,2",1440,14,,0.2,"C1011.001a    Wall Partition, Type: Gypsum with metal studs, Full Height, Fixed Below, Fixed Above"
+C.30.11.001a,LF,4,"1,2",108.9,1,,0.7,"C3011.001a    Wall Partition, Type: Gypsum + Wallpaper, Full Height, Fixed Below, Fixed Above"
+C.30.27.001,SF,4,0,10800,108,,0.2,"C3027.001    Raised Access Floor, non seismically rated."
+C.30.32.001a,SF,4,0,12960,51,,0,"C3032.001a    Suspended Ceiling, SDC A,B,C, Area (A): A < 250, Vert support only"
+C.30.32.001a,SF,4,0,720,2,,0,"C3032.001a    Suspended Ceiling, SDC A,B,C, Area (A): A < 250, Vert support only"
+C.30.32.001a,SF,4,0,432,1,,0,"C3032.001a    Suspended Ceiling, SDC A,B,C, Area (A): A < 250, Vert support only"
+C.30.32.001a,SF,4,0,288,1,,0,"C3032.001a    Suspended Ceiling, SDC A,B,C, Area (A): A < 250, Vert support only"
+D.20.21.011a,LF,4,0,604.8,1,,0.7,"D2021.011a    Cold or Hot Potable  - Small Diameter Threaded Steel - (2.5 inches in diameter or less), SDC A or B, PIPING FRAGILITY"
+D.30.41.012a,LF,4,0,288,1,,0.2,"D3041.012a    HVAC Galvanized Sheet Metal Ducting -  6 sq. ft cross sectional area or greater, SDC A or B"
+D.30.41.011a,LF,4,0,1080,1,,0.2,"D3041.011a    HVAC Galvanized Sheet Metal Ducting less than 6 sq. ft in cross sectional area, SDC A or B"
+D.30.41.031a,EA,4,0,129.6,12,,0.5,"D3041.031a    HVAC Drops / Diffusers in suspended ceilings - No independent safety wires, SDC A or B"
+D.30.41.041a,EA,4,0,72,7,,0.2,"D3041.041a    Variable Air Volume (VAV) box with in-line coil, SDC A or B"
+D.30.41.041a,EA,4,0,28.8,2,,0.5,"D3041.041a    Variable Air Volume (VAV) box with in-line coil, SDC A or B"
+C.30.34.001,EA,4,0,216,216,,0.3,C3034.001    Independent Pendant Lighting - non seismic
+C.30.34.001,EA,4,0,216,216,,0.3,C3034.001    Independent Pendant Lighting - non seismic
+D.40.11.021a,LF,4,0,2880,2,,0.1,"D4011.021a    Fire Sprinkler Water Piping - Horizontal Mains and Branches - Old Style Victaulic - Thin Wall Steel - No bracing, SDC A or B, PIPING FRAGILITY"
+D.40.11.031a,EA,4,0,129.6,1,,0.2,"D4011.031a    Fire Sprinkler Drop Standard Threaded Steel - Dropping into unbraced lay-in tile SOFT ceiling - 6 ft. long drop maximum, SDC A or B"
+B.20.22.001,SF,3,"1,2",4320,144,,0.6,"B2022.001    Curtain Walls - Generic Midrise Stick-Built Curtain wall, Config: Monolithic, Lamination: Unknown, Glass Type: Unknown, Details: Aspect ratio = 6:5,  Other details Unknown"
+B.30.11.011,SF,3,0,3888,38,,1.3,"B3011.011    Concrete tile roof, tiles secured and compliant with UBC94"
+C.10.11.001a,LF,3,"1,2",1440,14,,0.2,"C1011.001a    Wall Partition, Type: Gypsum with metal studs, Full Height, Fixed Below, Fixed Above"
+C.30.11.001a,LF,3,"1,2",108.9,1,,0.7,"C3011.001a    Wall Partition, Type: Gypsum + Wallpaper, Full Height, Fixed Below, Fixed Above"
+C.30.27.001,SF,3,0,10800,108,,0.2,"C3027.001    Raised Access Floor, non seismically rated."
+C.30.32.001a,SF,3,0,12960,51,,0,"C3032.001a    Suspended Ceiling, SDC A,B,C, Area (A): A < 250, Vert support only"
+C.30.32.001a,SF,3,0,720,2,,0,"C3032.001a    Suspended Ceiling, SDC A,B,C, Area (A): A < 250, Vert support only"
+C.30.32.001a,SF,3,0,432,1,,0,"C3032.001a    Suspended Ceiling, SDC A,B,C, Area (A): A < 250, Vert support only"
+C.30.32.001a,SF,3,0,288,1,,0,"C3032.001a    Suspended Ceiling, SDC A,B,C, Area (A): A < 250, Vert support only"
+D.20.21.011a,LF,3,0,604.8,1,,0.7,"D2021.011a    Cold or Hot Potable  - Small Diameter Threaded Steel - (2.5 inches in diameter or less), SDC A or B, PIPING FRAGILITY"
+D.30.41.012a,LF,3,0,288,1,,0.2,"D3041.012a    HVAC Galvanized Sheet Metal Ducting -  6 sq. ft cross sectional area or greater, SDC A or B"
+D.30.41.011a,LF,3,0,1080,1,,0.2,"D3041.011a    HVAC Galvanized Sheet Metal Ducting less than 6 sq. ft in cross sectional area, SDC A or B"
+D.30.41.031a,EA,3,0,129.6,12,,0.5,"D3041.031a    HVAC Drops / Diffusers in suspended ceilings - No independent safety wires, SDC A or B"
+D.30.41.041a,EA,3,0,72,7,,0.2,"D3041.041a    Variable Air Volume (VAV) box with in-line coil, SDC A or B"
+D.30.41.041a,EA,3,0,28.8,2,,0.5,"D3041.041a    Variable Air Volume (VAV) box with in-line coil, SDC A or B"
+C.30.34.001,EA,3,0,216,216,,0.3,C3034.001    Independent Pendant Lighting - non seismic
+C.30.34.001,EA,3,0,216,216,,0.3,C3034.001    Independent Pendant Lighting - non seismic
+D.40.11.021a,LF,3,0,2880,2,,0.1,"D4011.021a    Fire Sprinkler Water Piping - Horizontal Mains and Branches - Old Style Victaulic - Thin Wall Steel - No bracing, SDC A or B, PIPING FRAGILITY"
+D.40.11.031a,EA,3,0,129.6,1,,0.2,"D4011.031a    Fire Sprinkler Drop Standard Threaded Steel - Dropping into unbraced lay-in tile SOFT ceiling - 6 ft. long drop maximum, SDC A or B"
+B.20.22.001,SF,2,"1,2",4320,144,,0.6,"B2022.001    Curtain Walls - Generic Midrise Stick-Built Curtain wall, Config: Monolithic, Lamination: Unknown, Glass Type: Unknown, Details: Aspect ratio = 6:5,  Other details Unknown"
+B.30.11.011,SF,2,0,3888,38,,1.3,"B3011.011    Concrete tile roof, tiles secured and compliant with UBC94"
+C.10.11.001a,LF,2,"1,2",1440,14,,0.2,"C1011.001a    Wall Partition, Type: Gypsum with metal studs, Full Height, Fixed Below, Fixed Above"
+C.30.11.001a,LF,2,"1,2",108.9,1,,0.7,"C3011.001a    Wall Partition, Type: Gypsum + Wallpaper, Full Height, Fixed Below, Fixed Above"
+C.30.27.001,SF,2,0,10800,108,,0.2,"C3027.001    Raised Access Floor, non seismically rated."
+C.30.32.001a,SF,2,0,12960,51,,0,"C3032.001a    Suspended Ceiling, SDC A,B,C, Area (A): A < 250, Vert support only"
+C.30.32.001a,SF,2,0,720,2,,0,"C3032.001a    Suspended Ceiling, SDC A,B,C, Area (A): A < 250, Vert support only"
+C.30.32.001a,SF,2,0,432,1,,0,"C3032.001a    Suspended Ceiling, SDC A,B,C, Area (A): A < 250, Vert support only"
+C.30.32.001a,SF,2,0,288,1,,0,"C3032.001a    Suspended Ceiling, SDC A,B,C, Area (A): A < 250, Vert support only"
+D.20.21.011a,LF,2,0,604.8,1,,0.7,"D2021.011a    Cold or Hot Potable  - Small Diameter Threaded Steel - (2.5 inches in diameter or less), SDC A or B, PIPING FRAGILITY"
+D.30.41.012a,LF,2,0,288,1,,0.2,"D3041.012a    HVAC Galvanized Sheet Metal Ducting -  6 sq. ft cross sectional area or greater, SDC A or B"
+D.30.41.011a,LF,2,0,1080,1,,0.2,"D3041.011a    HVAC Galvanized Sheet Metal Ducting less than 6 sq. ft in cross sectional area, SDC A or B"
+D.30.41.031a,EA,2,0,129.6,12,,0.5,"D3041.031a    HVAC Drops / Diffusers in suspended ceilings - No independent safety wires, SDC A or B"
+D.30.41.041a,EA,2,0,72,7,,0.2,"D3041.041a    Variable Air Volume (VAV) box with in-line coil, SDC A or B"
+D.30.41.041a,EA,2,0,28.8,2,,0.5,"D3041.041a    Variable Air Volume (VAV) box with in-line coil, SDC A or B"
+C.30.34.001,EA,2,0,216,216,,0.3,C3034.001    Independent Pendant Lighting - non seismic
+C.30.34.001,EA,2,0,216,216,,0.3,C3034.001    Independent Pendant Lighting - non seismic
+D.40.11.021a,LF,2,0,2880,2,,0.1,"D4011.021a    Fire Sprinkler Water Piping - Horizontal Mains and Branches - Old Style Victaulic - Thin Wall Steel - No bracing, SDC A or B, PIPING FRAGILITY"
+D.40.11.031a,EA,2,0,129.6,1,,0.2,"D4011.031a    Fire Sprinkler Drop Standard Threaded Steel - Dropping into unbraced lay-in tile SOFT ceiling - 6 ft. long drop maximum, SDC A or B"
+B.20.22.001,SF,1,"1,2",4320,144,,0.6,"B2022.001    Curtain Walls - Generic Midrise Stick-Built Curtain wall, Config: Monolithic, Lamination: Unknown, Glass Type: Unknown, Details: Aspect ratio = 6:5,  Other details Unknown"
+B.30.11.011,SF,1,0,3888,38,,1.3,"B3011.011    Concrete tile roof, tiles secured and compliant with UBC94"
+C.10.11.001a,LF,1,"1,2",1440,14,,0.2,"C1011.001a    Wall Partition, Type: Gypsum with metal studs, Full Height, Fixed Below, Fixed Above"
+C.30.11.001a,LF,1,"1,2",108.9,1,,0.7,"C3011.001a    Wall Partition, Type: Gypsum + Wallpaper, Full Height, Fixed Below, Fixed Above"
+C.30.27.001,SF,1,0,10800,108,,0.2,"C3027.001    Raised Access Floor, non seismically rated."
+C.30.32.001a,SF,1,0,12960,51,,0,"C3032.001a    Suspended Ceiling, SDC A,B,C, Area (A): A < 250, Vert support only"
+C.30.32.001a,SF,1,0,720,2,,0,"C3032.001a    Suspended Ceiling, SDC A,B,C, Area (A): A < 250, Vert support only"
+C.30.32.001a,SF,1,0,432,1,,0,"C3032.001a    Suspended Ceiling, SDC A,B,C, Area (A): A < 250, Vert support only"
+C.30.32.001a,SF,1,0,288,1,,0,"C3032.001a    Suspended Ceiling, SDC A,B,C, Area (A): A < 250, Vert support only"
+D.20.21.011a,LF,1,0,604.8,1,,0.7,"D2021.011a    Cold or Hot Potable  - Small Diameter Threaded Steel - (2.5 inches in diameter or less), SDC A or B, PIPING FRAGILITY"
+D.30.41.012a,LF,1,0,288,1,,0.2,"D3041.012a    HVAC Galvanized Sheet Metal Ducting -  6 sq. ft cross sectional area or greater, SDC A or B"
+D.30.41.011a,LF,1,0,1080,1,,0.2,"D3041.011a    HVAC Galvanized Sheet Metal Ducting less than 6 sq. ft in cross sectional area, SDC A or B"
+D.30.41.031a,EA,1,0,129.6,12,,0.5,"D3041.031a    HVAC Drops / Diffusers in suspended ceilings - No independent safety wires, SDC A or B"
+D.30.41.041a,EA,1,0,72,7,,0.2,"D3041.041a    Variable Air Volume (VAV) box with in-line coil, SDC A or B"
+D.30.41.041a,EA,1,0,28.8,2,,0.5,"D3041.041a    Variable Air Volume (VAV) box with in-line coil, SDC A or B"
+C.30.34.001,EA,1,0,216,216,,0.3,C3034.001    Independent Pendant Lighting - non seismic
+C.30.34.001,EA,1,0,216,216,,0.3,C3034.001    Independent Pendant Lighting - non seismic
+D.40.11.021a,LF,1,0,2880,2,,0.1,"D4011.021a    Fire Sprinkler Water Piping - Horizontal Mains and Branches - Old Style Victaulic - Thin Wall Steel - No bracing, SDC A or B, PIPING FRAGILITY"
+D.40.11.031a,EA,1,0,129.6,1,,0.2,"D4011.031a    Fire Sprinkler Drop Standard Threaded Steel - Dropping into unbraced lay-in tile SOFT ceiling - 6 ft. long drop maximum, SDC A or B"
+C.20.11.001a,EA,4,"1,2",2.9,2,,0.2,C2011.001a    Prefabricated steel stair with steel treads and landings with seismic joints that accommodate drift.
+D.50.12.021a,EA,4,0,1,1,,0.4,D5012.021a    Low Voltage Switchgear - Capacity: 100 to <350 Amp - Unanchored equipment that is not vibration isolated - Equipment fragility only
+C.20.11.001a,EA,3,"1,2",2.9,2,,0.2,C2011.001a    Prefabricated steel stair with steel treads and landings with seismic joints that accommodate drift.
+D.50.12.021a,EA,3,0,1,1,,0.4,D5012.021a    Low Voltage Switchgear - Capacity: 100 to <350 Amp - Unanchored equipment that is not vibration isolated - Equipment fragility only
+C.20.11.001a,EA,2,"1,2",2.9,2,,0.2,C2011.001a    Prefabricated steel stair with steel treads and landings with seismic joints that accommodate drift.
+D.50.12.021a,EA,2,0,1,1,,0.4,D5012.021a    Low Voltage Switchgear - Capacity: 100 to <350 Amp - Unanchored equipment that is not vibration isolated - Equipment fragility only
+C.20.11.001a,EA,1,"1,2",2.9,2,,0.2,C2011.001a    Prefabricated steel stair with steel treads and landings with seismic joints that accommodate drift.
+D.50.12.021a,EA,1,0,1,1,,0.4,D5012.021a    Low Voltage Switchgear - Capacity: 100 to <350 Amp - Unanchored equipment that is not vibration isolated - Equipment fragility only
+D.10.14.011,EA,roof,0,2,2,,0.7,"D1014.011    Traction Elevator - Applies to most California Installations 1976 or later, most western states installations 1982 or later and most other U.S installations 1998 or later."
+D.30.31.011a,EA,roof,0,3,3,,0.1,D3031.011a    Chiller - Capacity: < 100 Ton - Unanchored equipment that is not vibration isolated - Equipment fragility only
+D.30.31.021a,EA,roof,0,3,3,,0.1,D3031.021a    Cooling Tower - Capacity: < 100 Ton - Unanchored equipment that is not vibration isolated - Equipment fragility only
+D.30.52.011a,EA,roof,0,13,13,,0.2,D3052.011a    Air Handling Unit - Capacity: <5000 CFM - Unanchored equipment that is not vibration isolated - Equipment fragility only
+D.50.12.013a,EA,roof,0,2.9,2,,0.5,D5012.013a    Motor Control Center - Capacity: all - Unanchored equipment that is not vibration isolated - Equipment fragility only
+B.10.44.101,SF,1--4,"1,2",288,2,,,Slender concrete wall
+B.10.49.012,EA,1--4,"1,2",21,21,,,RC slab-column connections
