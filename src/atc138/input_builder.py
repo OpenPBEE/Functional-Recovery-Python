@@ -699,6 +699,11 @@ def convert_pelicun(model_dir):
         num_elev = general_inputs['num_elevators']
 
     # construct building_model.json
+    if 'typ_struct_bay_length_ft' in general_inputs:
+        struct_bay_len = general_inputs["typ_struct_bay_length_ft"]
+    else:
+        struct_bay_len = general_inputs["typ_struct_bay_area_ft"]
+
     building_model = dict(
         building_value=total_cost,
         num_stories=num_stories,
@@ -708,9 +713,7 @@ def convert_pelicun(model_dir):
             [general_inputs["length_side_1_ft"]] * num_stories,
             [general_inputs["length_side_2_ft"]] * num_stories,
         ],
-        struct_bay_area_per_story=[
-            general_inputs["typ_struct_bay_area_ft"]
-        ] * num_stories,
+        struct_bay_area_per_story = [struct_bay_len] * num_stories,
         num_entry_doors=general_inputs["num_entry_doors"],
         num_elevators=int(num_elev),
         stairs_per_story=stairs_per_story,

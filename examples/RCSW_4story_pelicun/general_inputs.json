@@ -1,6 +1,6 @@
 {
     "num_entry_doors": 2,
-    "typ_struct_bay_area_ft": 169,
+    "typ_struct_bay_length_ft": 30.0,
     "typ_story_ht_ft": 10,
     "length_side_1_ft": 120,
     "length_side_2_ft": 120,
