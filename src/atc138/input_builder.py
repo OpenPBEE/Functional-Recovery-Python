@@ -543,7 +543,7 @@ def clean_frag_id(frag_id: str) -> str:
     parts = frag_id.split('.')
     return '.'.join(["".join(parts[:-1]), parts[-1]])
 
-def reorder_dv_cols(df, dv_tag_meta, ordered_tags=("dmg","loc","dir","ds")):
+def reorder_dv_cols(df, dv_tag_meta, ordered_tags=("loc","dir","ds")):
     """
     Rename columns from dv-loss-dmg-ds-loc-dir -> dmg-loc-dir-ds.
 
@@ -560,7 +560,15 @@ def reorder_dv_cols(df, dv_tag_meta, ordered_tags=("dmg","loc","dir","ds")):
     pandas.DataFrame
         DataFrame with renamed columns.
     """
-    keep_idx = [dv_tag_meta.index(k) for k in ordered_tags]
+    if "cmp" in dv_tag_meta:
+        first_tag = "cmp"
+    elif "dmg" in dv_tag_meta:
+        first_tag = "dmg"
+    elif "loss" in dv_tag_meta:
+        first_tag = "loss"
+
+    all_ordered_tags = (first_tag,) + tuple(ordered_tags)
+    keep_idx = [dv_tag_meta.index(k) for k in all_ordered_tags]
 
     new_cols = []
     for col in df.columns:
@@ -611,22 +619,8 @@ def convert_pelicun(model_dir):
         - DL_summary.csv: summary of damage and loss, to read in irreparable cases
         - DMG_sample.csv: damage sample of all realizations
         - DV_repair_sample.csv: decision variable sample of all realizations
-        - general_inputs.json: egress, occupancy, dimensions
-        - input.json: JSON file with number of stories, replacement cost, plan area
+        - general_inputs.json: egress, occupancy, dimensions, number of stories, replacement cost, plan area
     '''
-
-    from copy import deepcopy
-
-    with open(os.path.join(model_dir, 'input.json')) as file:
-        pelicun_inputs = json.load(file)  
-
-    ############ Pull basic model info from Pelicun Inputs
-    num_stories = int(pelicun_inputs['DL']['Asset']['NumberOfStories'])
-    if 'Repair' in pelicun_inputs['DL']['Losses']:
-        total_cost = float(pelicun_inputs['DL']['Losses']['Repair']['ReplacementCost']['Median'])
-    else:
-        total_cost = float(pelicun_inputs['DL']['Losses']['BldgRepair']['ReplacementCost']['Median'])
-    plan_area = float(pelicun_inputs['DL']['Asset']['PlanArea'])
 
     ########### Load Pelicun files
     # pull components 
@@ -661,6 +655,11 @@ def convert_pelicun(model_dir):
     with open(os.path.join(model_dir, 'general_inputs.json')) as file:
         general_inputs = json.load(file)
 
+    ############ Pull basic model info from Pelicun Inputs
+    num_stories = int(general_inputs['number_of_stories'])
+    total_cost = float(general_inputs['replacement_cost_median'])
+    plan_area = float(general_inputs['plan_area_ft2'])
+
     # remove Units row (case insensitive)
     # the first column is the cmp-loc-dir-ds or dv-loss-dmg-ds-loc-dir indicator
     damage = damage[~damage.iloc[:,0].astype(str).str.lower().str.contains('unit')]
@@ -669,6 +668,9 @@ def convert_pelicun(model_dir):
     # Get meta-naming convention, then filter to just cmp columns
     # (case insensitive)
     tag_name_list = damage.columns[0].lower().split('-')
+    # if upper left meta tag not found, raise error to provide
+    reqd_tags = ['cmp', 'loc', 'dir', 'ds']
+    assert set(reqd_tags) <= set(tag_name_list), "Missing meta-tag in index column (i.e. 'cmp-loc-dir-ds' must be provided at minimum)"
     frag_cols = damage.columns[
         damage.columns.str.match(r"^[B-F]")
     ]
@@ -679,6 +681,10 @@ def convert_pelicun(model_dir):
 
     # Filter DV columns
     dv_tag_meta = dvs.columns[0].lower().split('-')
+    reqd_tags = ['loc', 'dir', 'ds']
+    accepted_first_tag = ['cmp', 'dmg', 'loss']
+    assert any(item in accepted_first_tag for item in dv_tag_meta), "Missing meta-tag in index column (i.e. 'cmp/dmg/loss-loc-dir-ds' must be provided at minimum)"
+    assert set(reqd_tags) <= set(dv_tag_meta), "Missing meta-tag in index column (i.e. 'cmp/dmg/loss-loc-dir-ds' must be provided at minimum)"
     DV_time = dvs.loc[:, dvs.columns.str.upper().str.startswith("TIME")]
     DV_cost = dvs.loc[:, dvs.columns.str.upper().str.startswith("COST")]
 
@@ -708,6 +714,13 @@ def convert_pelicun(model_dir):
         num_elev = general_inputs['num_elevators']
 
     # construct building_model.json
+    if 'typ_struct_bay_length_ft' in general_inputs:
+        struct_bay_len = general_inputs["typ_struct_bay_length_ft"]
+    else:
+        print('Input parameter "typ_struct_bay_length_ft" should be specified with length of structural bay.')
+        print('Using "typ_struct_bay_area_ft" as a length parameter.')
+        struct_bay_len = general_inputs["typ_struct_bay_area_ft"]
+
     building_model = dict(
         building_value=total_cost,
         num_stories=num_stories,
@@ -717,9 +730,7 @@ def convert_pelicun(model_dir):
             [general_inputs["length_side_1_ft"]] * num_stories,
             [general_inputs["length_side_2_ft"]] * num_stories,
         ],
-        struct_bay_area_per_story=[
-            general_inputs["typ_struct_bay_area_ft"]
-        ] * num_stories,
+        struct_bay_area_per_story = [struct_bay_len] * num_stories,
         num_entry_doors=general_inputs["num_entry_doors"],
         num_elevators=int(num_elev),
         stairs_per_story=stairs_per_story,
@@ -881,6 +892,10 @@ def convert_pelicun(model_dir):
         comp_conversion[_fid] = _pelicun_to_p58_factor(
             _pelicun_unit, str(_attr['unit']).strip(), float(_attr['unit_qty'])
         )
+
+    # force read as strings to assist string-based Location and Direction parser
+    comps['Location'] = comps['Location'].astype("string")
+    comps['Direction'] = comps['Direction'].astype("string")
 
     for _, comp in comps.iterrows():
 
