@@ -130,18 +130,46 @@ def build_simulated_inputs(model_dir):
     
     # 3. List of component and damage states ids associated with the damage
     comp_ds_list = pd.read_csv(os.path.join(model_dir, 'comp_ds_list.csv'))
-    
+
     # 4. List of component and damage states in the performance model
     comp_population = pd.read_csv(os.path.join(model_dir, 'comp_population.csv'))
     comp_header = list(comp_population.columns)
-    comp_list = np.array(comp_header[2:len(comp_header)])
-    comp_list= np.char.replace(np.array(comp_list),'_','.')
+
+    # component IDs from comp_population
+    comp_list = np.array(comp_header[2:])
+    comp_list = np.char.replace(comp_list, '_', '.')
     comp_list = comp_list.tolist()
-    # Remove suffixes from repated entries
+
+    # Remove suffixes from repeated entries
     for i in range(len(comp_list)):
         if len(comp_list[i]) > 10:
-            comp_list[i]=comp_list[i][0:10]
+            comp_list[i] = comp_list[i][0:10]
+
+    # Default: Skip components that do not have attributes 
+    valid_fragility_ids = set(component_attributes['fragility_id'].astype(str))
+    missing_comp_ids = sorted(set([cid for cid in comp_list if cid not in valid_fragility_ids]))
+
+    if missing_comp_ids:
+        print(
+            "Warning: skipping components with missing component attributes: "
+            + ", ".join(missing_comp_ids)
+        )
+
+    # Keep only valid components
+    valid_mask = [cid in valid_fragility_ids for cid in comp_list]
+    valid_cols = comp_header[:2] + [col for col, keep in zip(comp_header[2:], valid_mask) if keep]
+
+    comp_population = comp_population.loc[:, valid_cols].copy()
+    comp_list = [cid for cid in comp_list if cid in valid_fragility_ids]
+
+    # We also need to filter simulated_damage 
+    comp_ds_keep_mask = comp_ds_list['comp_id'].isin(comp_list).to_numpy()
+
+    comp_ds_list = comp_ds_list[comp_ds_keep_mask].copy()
+    comp_ds_list = comp_ds_list.reset_index(drop=True)
+
     building_model['comps'] = {'comp_list' : comp_list} #FZ# Component list has been added to building model dictionary.
+    
     
     # Go through each story and assign component populations
     drs = np.unique(np.array(comp_population['dir']))
@@ -217,10 +245,37 @@ def build_simulated_inputs(model_dir):
     
     
     # 3. Simulated component damage per tenant unit for each realization of the monte carlo simulation
-    # 3. Simulated component damage per tenant unit for each realization of the monte carlo simulation
     with open(os.path.join(model_dir, 'simulated_damage.json'), 'r') as f:
         sim_damage = json.load(f)
+
     
+    # Filter simulated damage arrays to match filtered comp_ds_list
+    if not np.all(comp_ds_keep_mask):
+        tenant_keys = [
+            'repair_cost', 'num_comps', 'qnt_damaged',
+            'qnt_damaged_side_1', 'qnt_damaged_side_2',
+            'qnt_damaged_side_3', 'qnt_damaged_side_4',
+            'worker_days'
+        ]
+        story_keys = ['qnt_damaged_dir_1', 'qnt_damaged_dir_2', 'qnt_damaged_dir_3']
+
+        if 'tenant_units' in sim_damage:
+            for tu in range(len(sim_damage['tenant_units'])):
+                for key in tenant_keys:
+                    if key in sim_damage['tenant_units'][tu]:
+                        arr = np.array(sim_damage['tenant_units'][tu][key])
+                        if arr.ndim == 2:
+                            sim_damage['tenant_units'][tu][key] = arr[:, comp_ds_keep_mask].tolist()
+                        elif arr.ndim == 1:
+                            sim_damage['tenant_units'][tu][key] = arr[comp_ds_keep_mask].tolist()
+
+        if 'story' in sim_damage:
+            for s in range(len(sim_damage['story'])):
+                for key in story_keys:
+                    if key in sim_damage['story'][s]:
+                        arr = np.array(sim_damage['story'][s][key])
+                        sim_damage['story'][s][key] = arr[:, comp_ds_keep_mask].tolist()
+        
     # Write in individual dictionaries part of larger 'damage' dictionary 
     damage = {'story' : {}, 'tenant_units' : {}}
     
@@ -543,7 +598,7 @@ def clean_frag_id(frag_id: str) -> str:
     parts = frag_id.split('.')
     return '.'.join(["".join(parts[:-1]), parts[-1]])
 
-def reorder_dv_cols(df, dv_tag_meta, ordered_tags=("dmg","loc","dir","ds")):
+def reorder_dv_cols(df, dv_tag_meta, ordered_tags=("loc","dir","ds")):
     """
     Rename columns from dv-loss-dmg-ds-loc-dir -> dmg-loc-dir-ds.
 
@@ -560,7 +615,15 @@ def reorder_dv_cols(df, dv_tag_meta, ordered_tags=("dmg","loc","dir","ds")):
     pandas.DataFrame
         DataFrame with renamed columns.
     """
-    keep_idx = [dv_tag_meta.index(k) for k in ordered_tags]
+    if "cmp" in dv_tag_meta:
+        first_tag = "cmp"
+    elif "dmg" in dv_tag_meta:
+        first_tag = "dmg"
+    elif "loss" in dv_tag_meta:
+        first_tag = "loss"
+
+    all_ordered_tags = (first_tag,) + tuple(ordered_tags)
+    keep_idx = [dv_tag_meta.index(k) for k in all_ordered_tags]
 
     new_cols = []
     for col in df.columns:
@@ -611,22 +674,8 @@ def convert_pelicun(model_dir):
         - DL_summary.csv: summary of damage and loss, to read in irreparable cases
         - DMG_sample.csv: damage sample of all realizations
         - DV_repair_sample.csv: decision variable sample of all realizations
-        - general_inputs.json: egress, occupancy, dimensions
-        - input.json: JSON file with number of stories, replacement cost, plan area
+        - general_inputs.json: egress, occupancy, dimensions, number of stories, replacement cost, plan area
     '''
-
-    from copy import deepcopy
-
-    with open(os.path.join(model_dir, 'input.json')) as file:
-        pelicun_inputs = json.load(file)  
-
-    ############ Pull basic model info from Pelicun Inputs
-    num_stories = int(pelicun_inputs['DL']['Asset']['NumberOfStories'])
-    if 'Repair' in pelicun_inputs['DL']['Losses']:
-        total_cost = float(pelicun_inputs['DL']['Losses']['Repair']['ReplacementCost']['Median'])
-    else:
-        total_cost = float(pelicun_inputs['DL']['Losses']['BldgRepair']['ReplacementCost']['Median'])
-    plan_area = float(pelicun_inputs['DL']['Asset']['PlanArea'])
 
     ########### Load Pelicun files
     # pull components 
@@ -661,6 +710,11 @@ def convert_pelicun(model_dir):
     with open(os.path.join(model_dir, 'general_inputs.json')) as file:
         general_inputs = json.load(file)
 
+    ############ Pull basic model info from Pelicun Inputs
+    num_stories = int(general_inputs['number_of_stories'])
+    total_cost = float(general_inputs['replacement_cost_median'])
+    plan_area = float(general_inputs['plan_area_ft2'])
+
     # remove Units row (case insensitive)
     # the first column is the cmp-loc-dir-ds or dv-loss-dmg-ds-loc-dir indicator
     damage = damage[~damage.iloc[:,0].astype(str).str.lower().str.contains('unit')]
@@ -669,6 +723,9 @@ def convert_pelicun(model_dir):
     # Get meta-naming convention, then filter to just cmp columns
     # (case insensitive)
     tag_name_list = damage.columns[0].lower().split('-')
+    # if upper left meta tag not found, raise error to provide
+    reqd_tags = ['cmp', 'loc', 'dir', 'ds']
+    assert set(reqd_tags) <= set(tag_name_list), "Missing meta-tag in index column (i.e. 'cmp-loc-dir-ds' must be provided at minimum)"
     frag_cols = damage.columns[
         damage.columns.str.match(r"^[B-F]")
     ]
@@ -679,6 +736,10 @@ def convert_pelicun(model_dir):
 
     # Filter DV columns
     dv_tag_meta = dvs.columns[0].lower().split('-')
+    reqd_tags = ['loc', 'dir', 'ds']
+    accepted_first_tag = ['cmp', 'dmg', 'loss']
+    assert any(item in accepted_first_tag for item in dv_tag_meta), "Missing meta-tag in index column (i.e. 'cmp/dmg/loss-loc-dir-ds' must be provided at minimum)"
+    assert set(reqd_tags) <= set(dv_tag_meta), "Missing meta-tag in index column (i.e. 'cmp/dmg/loss-loc-dir-ds' must be provided at minimum)"
     DV_time = dvs.loc[:, dvs.columns.str.upper().str.startswith("TIME")]
     DV_cost = dvs.loc[:, dvs.columns.str.upper().str.startswith("COST")]
 
@@ -708,6 +769,13 @@ def convert_pelicun(model_dir):
         num_elev = general_inputs['num_elevators']
 
     # construct building_model.json
+    if 'typ_struct_bay_length_ft' in general_inputs:
+        struct_bay_len = general_inputs["typ_struct_bay_length_ft"]
+    else:
+        print('Input parameter "typ_struct_bay_length_ft" should be specified with length of structural bay.')
+        print('Using "typ_struct_bay_area_ft" as a length parameter.')
+        struct_bay_len = general_inputs["typ_struct_bay_area_ft"]
+
     building_model = dict(
         building_value=total_cost,
         num_stories=num_stories,
@@ -717,9 +785,7 @@ def convert_pelicun(model_dir):
             [general_inputs["length_side_1_ft"]] * num_stories,
             [general_inputs["length_side_2_ft"]] * num_stories,
         ],
-        struct_bay_area_per_story=[
-            general_inputs["typ_struct_bay_area_ft"]
-        ] * num_stories,
+        struct_bay_area_per_story = [struct_bay_len] * num_stories,
         num_entry_doors=general_inputs["num_entry_doors"],
         num_elevators=int(num_elev),
         stairs_per_story=stairs_per_story,
@@ -881,6 +947,10 @@ def convert_pelicun(model_dir):
         comp_conversion[_fid] = _pelicun_to_p58_factor(
             _pelicun_unit, str(_attr['unit']).strip(), float(_attr['unit_qty'])
         )
+
+    # force read as strings to assist string-based Location and Direction parser
+    comps['Location'] = comps['Location'].astype("string")
+    comps['Direction'] = comps['Direction'].astype("string")
 
     for _, comp in comps.iterrows():
 
