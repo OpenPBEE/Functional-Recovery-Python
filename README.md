@@ -47,13 +47,23 @@ If `simulated_inputs.json` exists, the input builder will not re-run unless `--f
 With the input directory containing the necessary inputs, perform an assessment by running:
 
 ```bash
-python -m atc138.cli dir/to/inputs dir/to/outputs
+python -m atc138.cli dir/to/inputs dir/to/outputs [options]
 ```
 
- For example, the ICSB example case is run with:
+Available options:
+- `--seed SEED`: Random seed for reproducible results (integer)
+- `--force_rebuild`: Force regeneration of `simulated_inputs.json` even if it exists
+
+For example, the ICSB example case is run with:
 
 ```bash
 python -m atc138.cli ./examples/ICSB ./examples/ICSB/output
+```
+
+Or with custom options:
+
+```bash
+python -m atc138.cli ./examples/ICSB ./examples/ICSB/output --seed 12345 --force_rebuild
 ```
 
 ### Imported via Python script
@@ -91,25 +101,44 @@ which will plot:
 Four example inputs are provided to help illustrate both the construction of the inputs file and the implementation. These files are located in the `examples/` directory and can be run through the assessment by setting the variable names accordingly above.
 
 ## Definition of I/O
-A brief description of the various input and output variables are provided below. A detailed schema of all expected input and output subfields is provided in the schema directory.
+A brief description of the various input and output variables are provided below. A detailed schema of all expected input and output subfields is provided in [src/atc138/data/default_inputs.json](src/atc138/data/default_inputs.json).
 
 ### Inputs
-  - **impedance_options**: Python dictionary
-   Python dictionary containing optional method inputs for the assessment of impeding factors
- - **repair_time_options**: Python dictionary
-   Python dictionary containing optional method inputs for the assessment of the repair schedule
- - **functionality_options**: Python dictionary
-   Python dictionary containing optional method inputs for the assessment of building function, such as functionality limit state thresholds
- - **building_model**: Python dictionary
-   Python dictionary containing general information about the building such as the number of stories and the building area
- - **damage**: Python dictionary
-   Python dictionary containing simulated damage, simulated repair time, and component attribute data associated with each component's damages state in the building
- - **damage_consequences**: Python dictionary
-   Python dictionary containing simulated building consequences, such as red tags and repair costs ratios
- - **functionality['utilities']**: Python dictionary
-   Python dictionary containing simulated utility downtimes
- - **tenant_units**: Python dictionary
-   Python dictionary that contains the attributes and functional requirements of each tenant unit in the building
+
+#### Assessment Options
+These options control various aspects of the functional recovery assessment and can be customized via `optional_inputs.json`:
+
+- **impedance_options**: Python dictionary containing method inputs for assessing impeding factors (delays in starting repairs). Key fields include:
+  - `include_impedance`: Enable/disable different delay types (inspection, financing, permitting, engineering, contractor)
+  - `system_design_time`: Engineering design duration parameters (f, r, t, w for lognormal distribution)
+  - `eng_design_min_days`/`eng_design_max_days`: Bounds on engineering design time
+  - `mitigation`: Building-specific factors (essential facility status, contractor relationships, funding source)
+  - `impedance_beta`: Uncertainty parameter for delay distributions
+  - `default_lead_time`: Default procurement time for materials (182 days)
+  - `demand_surge`: Regional demand surge effects based on urban density and ground motion
+
+- **repair_time_options**: Python dictionary containing method inputs for the repair schedule. Key fields include:
+  - `max_workers_per_sqft_story`: Maximum workers per square foot per story
+  - `max_workers_per_sqft_story_temp_repair`: Maximum workers for temporary repairs
+  - `max_workers_building_min`/`max_workers_building_max`: Bounds on total building workforce
+  - `allow_tmp_repairs`: Enable/disable temporary repair capabilities
+  - `allow_shoring`: Enable/disable shoring during repairs
+
+- **functionality_options**: Python dictionary containing method inputs for building function assessment. Key fields include:
+  - `calculate_red_tag`: Enable/disable red tag assessment
+  - `red_tag_clear_time`: Days to clear red tags (default: 7)
+  - `egress_threshold`: Minimum fraction of egress paths required (default: 0.5)
+  - `fire_watch`: Enable/disable fire watch requirements
+  - `habitability_requirements`: Utility requirements for habitability (electrical, water, HVAC)
+  - `water_pressure_max_story`: Maximum stories affected by water pressure loss
+  - `heat_utility`: Fuel type for heating ("gas" or "electric")
+
+#### Building and Damage Data
+- **building_model**: Python dictionary containing general building information such as number of stories, building area, and component populations
+- **damage**: Python dictionary containing simulated component damage, repair times, and component attributes for each damage state
+- **damage_consequences**: Python dictionary containing simulated building consequences such as red tags and repair cost ratios
+- **functionality['utilities']**: Python dictionary containing simulated regional utility downtimes for gas, water, and electrical networks (optional - defaults to zero downtime if missing)
+- **tenant_units**: Python dictionary containing attributes and functional requirements for each tenant unit in the building
 
 ### Outputs
  - **functionality['recovery']**: Python dictionary
@@ -120,6 +149,84 @@ A brief description of the various input and output variables are provided below
    Python dictionary containing the simulation of allocated workers throughout the repair process
  - **functionality['impeding_factors']**: Python dictionary
    Python dictionary containing the simulated impeding factors delaying the start of system repair
+
+## Overriding Default Inputs
+
+The assessment uses a hierarchy of input sources, with later sources taking precedence over earlier ones:
+
+1. **Built-in defaults** from [src/atc138/data/default_inputs.json](src/atc138/data/default_inputs.json)
+2. **Custom static tables** (CSV files copied to input directory)
+3. **optional_inputs.json** (highest priority for assessment options)
+
+### Using optional_inputs.json
+
+To customize assessment options, create an `optional_inputs.json` file in your input directory with only the fields you want to override. The file should follow this structure:
+
+```json
+{
+  "impedance_options": {
+    "include_impedance": {
+      "engineering": false
+    },
+    "default_lead_time": 90
+  },
+  "repair_time_options": {
+    "max_workers_building_max": 150
+  },
+  "functionality_options": {
+    "egress_threshold": 0.75,
+    "fire_watch": false
+  }
+}
+```
+
+This example disables engineering delays, reduces default lead time to 90 days, increases max workforce to 150, raises egress threshold to 75%, and disables fire watch requirements.
+
+### Customizing Static Tables
+
+To override default component, system, or tenant attributes, copy the relevant CSV file from `src/atc138/data/` to your input directory and modify it:
+
+- **component_attributes.csv**: Component properties (repair costs, crew sizes, system assignments)
+- **damage_state_attribute_mapping.csv**: How damage states affect function and reoccupancy
+- **systems.csv**: System definitions and functional requirements
+- **subsystems.csv**: Subsystem groupings
+- **tenant_function_requirements.csv**: Occupancy-specific functional thresholds
+- **temp_repair_class.csv**: Temporary repair capabilities
+
+For example, to modify component repair times, copy `component_attributes.csv` to your input directory and edit the relevant rows.
+
+## Input Validation & Common Errors
+
+The input builder performs basic validation and will raise errors for common issues:
+
+### Required Files Missing
+**Error**: `FileNotFoundError` or similar when a required file is missing
+**Required files**: `building_model.json`, `tenant_unit_list.csv`, `comp_ds_list.csv`, `comp_population.csv`, `damage_consequences.json`, `simulated_damage.json`
+**Solution**: Ensure all required files exist in the input directory
+
+### Invalid Occupancy IDs
+**Error**: `ValueError: Could not find occupancy_id X in tenant_function_requirements`
+**Cause**: `occupancy_id` in `tenant_unit_list.csv` doesn't match any ID in the tenant function requirements table
+**Solution**: Check that all occupancy IDs in your tenant list match those in `tenant_function_requirements.csv` (or your custom version)
+
+### Component ID Mismatches
+**Error**: `ValueError: Could not find component attributes for component X`
+**Cause**: Component ID in `comp_ds_list.csv` doesn't exist in component attributes table
+**Solution**: Verify component IDs match between `comp_ds_list.csv` and `component_attributes.csv`
+
+### CSV Format Issues
+**Error**: Pandas parsing errors or unexpected column names
+**Cause**: CSV files have incorrect headers, missing columns, or malformed data
+**Solution**: Check column names match expected format (see file descriptions above)
+
+### Damage State Mapping Issues
+**Error**: Issues with damage state attribute matching
+**Cause**: Damage state regex patterns in `damage_state_attribute_mapping.csv` don't match component damage states
+**Solution**: Review damage state naming conventions and regex patterns
+
+### Utility Downtime Format
+**Note**: `utility_downtime.json` is optional - if missing, assumes zero utility downtime
+**Format**: Should contain arrays for gas, water, and electrical downtime per realization
 
 ## Manually building the Inputs File
 By default, the inputs file are built from a simpler set of building inputs, taking advantage of default assessment assumptions and component, system, and tenant attributes contained within the _data_ directory. If you would like to manually modify the data tables listed below for a specific model, simply copy the files to the input directory and modify them.
@@ -149,39 +256,47 @@ Each file listed below contains data specific to the building performance model 
 
 ### Optional Building Specific Data
 The file(s) listed below contain data that is optional for the assessment. If the files do not exist, the method will make simplifying assumptions to account for the missing data (as noted below). Save in the input directory of your analysis.
- - **utility_downtime.json**: Regional utility simulated downtimes for gas, water, and electrical power networks. Contains all variables within the _functionality['utilities']_ dictionary defined in the inputs schema.
+ - **utility_downtime.json**: Regional utility simulated downtimes for gas, water, and electrical power networks. Should contain arrays for each utility type with downtime in days per realization. If missing, assumes zero downtime for all utilities.
 
 ### Default Optional Inputs
-The Python file listed below defines additional assessment inputs based on set of default values. Place this file in the input directory of your analysis.
- - **optional_inputs.json**: Defines default variables for the impedance_options, repair_time_options, functionality_options, and regional_impact variables listed in the inputs schema.
-
-<!-- How does a user modify the static tables (now data) without touching the original data files? -->
+Assessment options are controlled by `optional_inputs.json`. See the [Overriding Default Inputs](#overriding-default-inputs) section above for details on structure and usage.
 
 ### Static Data
-The csv tables listed below contain default component, damage state, system, and tenant function attributes that can be used to populate the required assessment inputs according to the methodology. These are located in the _data_ directory. To override the static data with custom versions, copy modified sheets and place them in the input directory.
- - **component_attributes.csv**: Attributes of components in the FEMA P-58 fragility database that are required for the functional recovery assessment.
- - **damage_state_attribute_mapping.csv**: Attributes of damage state in the FEMA P-58 fragility database and their affect on function and reoccupancy.
+The CSV tables listed below contain default component, damage state, system, and tenant function attributes. These are located in `src/atc138/data/` and can be overridden by copying files to your input directory (see [Customizing Static Tables](#customizing-static-tables) above).
+ - **component_attributes.csv**: Component properties (repair costs, crew sizes, system assignments)
+ - **damage_state_attribute_mapping.csv**: How damage states affect function and reoccupancy
+ - **systems.csv**: System definitions and functional requirements
+ - **subsystems.csv**: Subsystem groupings
+ - **tenant_function_requirements.csv**: Occupancy-specific functional thresholds
+ - **temp_repair_class.csv**: Temporary repair capabilities
  - **subsystems.csv**: Attributes of each default subsystem considered in the method.
  - **tenant_function_requirements.csv**: Default tenant requirements for function for various occupancy classes.
  - **systems.csv**: Attributes of each default ssytem considered in the method.
  - **temp_repair_class.csv**: Attributes of each temprary repair class considered in the method.
 
-## Building from Pelicun outputs
-This conversion module is compatible with PBE Application version ~=4.4 and pelicun~=3.5. To build and rebuild raw ATC-138 input files from Pelicun outputs, ensure that simulated_inputs.json does not currently exist in the model directory. Then, the following Pelicun files are required as input:
- - **CMP_QNT.csv**: component sheet
- - **DL_summary.csv**: summary of damage and loss, to read in irreparable cases
- - **DMG_sample.csv**: damage sample of all realizations
- - **DV_repair_sample.csv**: decision variable sample of all realizations. The legacy name **DV_bldg_repair_sample.csv** is supported as a fallback name.
- - **general_inputs.json**: egress, occupancy, dimensions, ratio of engineering cost as a fraction of total repair cost. Number of elevators or stairs per story can also be explicitly specified here if it is desired to override the quantity in CMP_QNT.
- - **input.json**: JSON file with number of stories, replacement cost, plan area
- - **side_damage_ratio.csv** (optional): CSV of size num_reals x 2, specifies the damage distributed to each side for cladding components. This fraction is constant across the height of the building. Column 1 is the fraction of damaged components in direction 0, side 1. Column 2 is the fraction of damaged components in direction 1, side 1. These should sum up to 0.5. Parallel sides will have the same fraction of damage. If not provided, these ratios will be sampled uniformly for all realizations.
+## Building from Pelicun Outputs
 
-Additionally, the following inputs are required similar to the raw build procedure, but are not generated by Pelicun:
- - **tenant_unit_list.csv**
+Use this workflow when you have FEMA P-58 damage and loss results from Pelicun and want to assess functional recovery. This is an alternative to manually creating the raw input files described above.
 
-Then, the either the CLI or import method can be used to run the analysis as before, which will detect the presence of Pelicun files to use as build inputs. An example is provided in the model directory `RCSW_4story_pelicun`.
+**Requirements**: PBE Application version ~=4.4 and pelicun~=3.5 (optional dependency - install with `pip install pelicun~=3.5` if needed)
 
-_Cladding damage:_ Current implementation of Pelicun inputs will randomly distribute the damage across 4 sides of the building for the purpose of cladding damage assignment. Custom side-assignment is planned for a future implementation.
+To use Pelicun outputs, ensure `simulated_inputs.json` does not exist in your model directory. Place the following Pelicun output files in your input directory:
+
+### Required Pelicun Files
+- **CMP_QNT.csv**: Component quantities and properties
+- **DL_summary.csv**: Damage and loss summary (for irreparable cases)
+- **DMG_sample.csv**: Damage realizations for all components
+- **DV_repair_sample.csv**: Repair decision variables (legacy name `DV_bldg_repair_sample.csv` also supported)
+- **general_inputs.json**: Building properties (egress, occupancy, dimensions, cost ratios)
+- **input.json**: Basic building information (stories, replacement cost, plan area)
+
+### Optional Pelicun Files
+- **side_damage_ratio.csv**: Custom cladding damage distribution (num_reals × 2 array)
+
+### Additional Required Files
+- **tenant_unit_list.csv**: Tenant unit definitions (same format as manual workflow)
+
+The assessment will automatically detect Pelicun files and convert them to the standard ATC-138 format. Use the same CLI or Python API as normal:
 
 ```python
 from src.atc138 import driver
@@ -191,6 +306,8 @@ output_dir = './examples/RCSW_4story_pelicun/output'
 
 driver.run_analysis(example_dir, output_dir, seed=985)
 ```
+
+**Note**: Cladding damage is currently distributed randomly across building sides. Custom side assignment is planned for future versions.
 
 ## Testing
 
@@ -221,3 +338,7 @@ The comparison engine can also be used standalone for detailed inspection:
 ```bash
 python tests/compare_runs.py <reference_dir> <python_output_dir>
 ```
+
+### Validation Testing Against MATLAB
+
+For detailed guidance on validating the Python implementation against the original MATLAB framework, see [tests/detailed_inspection_guide.md](tests/detailed_inspection_guide.md).
