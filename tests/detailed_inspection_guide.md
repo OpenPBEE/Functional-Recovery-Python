@@ -68,6 +68,8 @@ System-level wise, the maximum 95th percentile aboslute error of the fraction of
 
 Threshold: ```≤ 0.04``` (maximum mean difference of 4% unresolved fraction)
 
+Both absolute and relative differences are reported to provide a more complete assessment —— absolute difference reflects the magnitude of discrepancies, while relative difference normalizes them across models with different recovery scales. Using both avoids misleading interpretations —— for example, a small absolute difference may appear large in relative terms for short recovery durations, while a small relative difference may still correspond to a large absolute difference for long recovery durations. 
+
 </br>
 
 #### 5. Recovery Trajectory and System-Level Recovery Comparison
