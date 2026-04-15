@@ -813,7 +813,8 @@ Returns
     comps = np.unique(damage['comp_ds_table']['comp_id'])
        
     # Determine replacement cases
-    replace_cases = np.logical_not(np.isnan(simulated_replacement_time))
+    sim_rt = np.array(simulated_replacement_time, dtype=float)
+    replace_cases = ~np.isnan(sim_rt)
 
     ## Reformat repair schedule data into various breakdowns
     # Per component
