@@ -54,7 +54,9 @@ def fn_red_tag( calculate_red_tag, damage, comps, simulated_replacement_time, re
                     num_comps = np.array(comps['story'][s]['qty_dir_' + str(direc)])
         
                     # For each structural system
-                    structural_systems = np.unique(np.array(damage['comp_ds_table']['structural_system'] + damage['comp_ds_table']['structural_system_alt']))
+                    structural_systems = np.unique(np.concatenate(
+                        (np.array(damage['comp_ds_table']['structural_system']), np.array(damage['comp_ds_table']['structural_system_alt']))
+                    ))
                     structural_systems = np.delete(structural_systems, 0) # do not include components not assigned to a structural system
                     
                     sys_tag = np.zeros([num_reals, len(structural_systems)]).astype(bool)
