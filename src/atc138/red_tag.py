@@ -69,30 +69,43 @@ def fn_red_tag( calculate_red_tag, damage, comps, simulated_replacement_time, re
         
                         # Check damage among each series within this structural system
                         series = np.unique(np.array(damage['comp_ds_table']['structural_series_id'])[ss_filt_ds])
-                        ser_dmg = np.zeros([num_reals,len(series)])
-                        ser_qty = np.zeros([1,len(series)])
+
+                        # Allocate ONCE (outside the ser loop)
+                        ser_dmg = np.zeros((num_reals, len(series)))   # [num_reals x num_series]
+                        ser_qty = np.zeros(len(series))               # [num_series]
+
                         for ser in range(len(series)):
-                            ser_filt_ds = np.array(damage['comp_ds_table']['structural_series_id']) == series[ser] 
-                            ser_filt_comp = np.array(comps['comp_table']['structural_series_id']) == series[ser] 
-        
-                            # Total damage within this series and system
-                            ser_dmg[:,ser] = np.sum(sc_dmg[:,ser_filt_ds & ss_filt_ds], axis=1)
-        
-                            # Total number of components within this series and system
-                            ser_qty[:,ser] = np.sum(num_comps[ser_filt_comp & ss_filt_comp])
+                            ser_filt_ds = np.array(damage['comp_ds_table']['structural_series_id']) == series[ser]
+                            ser_filt_comp = np.array(comps['comp_table']['structural_series_id']) == series[ser]
+
+                            # Total damage within this series and system (per realization)
+                            ser_dmg[:, ser] = np.sum(sc_dmg[:, (ser_filt_ds & ss_filt_ds)], axis=1)
+
+                            # Total number of components within this series and system (constant across realizations)
+                            ser_qty[ser] = np.sum(num_comps[ser_filt_comp & ss_filt_comp])
         
                         # Check if this system is causing a red tag
                         if structural_systems[sys] == 12 and bool(red_tag_options.get('tag_coupling_beams_over_height', False)):
                             # HARED CODED CHECK FOR COUPLING BEAMS
                             # just do counts for now instead of adding to red tag per story check
                             coupling_beam_dmg[:, direc-1] = coupling_beam_dmg[:,direc-1] + np.nanmax(ser_dmg, axis = 1)
-                            coupling_beam_qty[0, direc-1] = coupling_beam_qty[0,direc-1] + np.nanmax(ser_qty, axis = 1)
+                            coupling_beam_qty[0, direc-1] = coupling_beam_qty[0, direc-1] + np.nanmax(ser_qty)
                             red_tag_impact_cb_sc = np.fmax(red_tag_impact_cb_sc, ss_filt_ds.reshape(1,-1) * sc_filt.reshape(1,-1) * (sc_dmg>0))
                         else:
-                            sys_dmg = np.nanmax(ser_dmg, axis = 1)
-                            sys_qty = np.nanmax(ser_qty, axis = 1)
-                            sys_ratio = sys_dmg / sys_qty
-                            sys_tag[:,sys] = sys_ratio > sc_thresholds[sc]
+                            empty_bin = (ser_dmg.size == 0 or ser_dmg.shape[1] == 0 or ser_qty.size == 0)
+
+                            if empty_bin:
+                                sys_ratio = np.zeros((num_reals,), dtype=float)   # implies "not tagged" for this bin
+                            else:
+                                sys_dmg = np.nanmax(ser_dmg, axis=1)   # (num_reals,)
+                                sys_qty = float(np.nanmax(ser_qty))    # scalar
+
+                                # avoid division by 0 / NaN issues
+                                sys_ratio = np.zeros((num_reals,), dtype=float)
+                                if np.isfinite(sys_qty) and sys_qty > 0:
+                                    ok = np.isfinite(sys_dmg)
+                                    sys_ratio[ok] = sys_dmg[ok] / sys_qty
+                            sys_tag[:, sys] = sys_ratio > sc_thresholds[sc]
                           
                             '''Calculate the impact that each component has on red tag
                             (boolean, 1 = affects red tag, 0 = does not affect)
@@ -160,7 +173,8 @@ def fn_red_tag( calculate_red_tag, damage, comps, simulated_replacement_time, re
     
     
     # Account for global red tag cases
-    replace_case = np.logical_not(np.isnan(np.array(simulated_replacement_time)))
+    sim_rt = np.array(simulated_replacement_time, dtype=float)
+    replace_case = ~np.isnan(sim_rt)
     red_tag[replace_case] = 1
     
     return red_tag, red_tag_impact, inspection_tag
