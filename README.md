@@ -68,10 +68,10 @@ python -m atc138.cli ./examples/ICSB ./examples/ICSB/output --seed 12345 --force
 
 ### Imported via Python script
 
-Ensure that the `src/` directory is on the path of the main script. Then:
+Once installed, the package can also be imported in scripts:
 
 ```python
-from src.atc138 import driver
+from atc138 import driver
 
 example_dir = './examples/ICSB'
 output_dir = './examples/ICSB/output'
@@ -216,7 +216,7 @@ To use Pelicun outputs, ensure `simulated_inputs.json` does not exist in your mo
 The assessment will automatically detect Pelicun files and convert them to the standard ATC-138 format. Use the same CLI or Python API as normal:
 
 ```python
-from src.atc138 import driver
+from atc138 import driver
 
 example_dir = './examples/RCSW_4story_pelicun'
 output_dir = './examples/RCSW_4story_pelicun/output'
