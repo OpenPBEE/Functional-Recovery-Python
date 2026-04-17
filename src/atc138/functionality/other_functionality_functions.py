@@ -1540,7 +1540,8 @@ def fn_extract_recovery_metrics( tenant_unit_recovery_day,
         
         
     # Determine replacement cases
-    replace_cases = np.logical_not(np.isnan(simulated_replacement_time))
+    sim_rt = np.array(simulated_replacement_time, dtype=float)
+    replace_cases = ~np.isnan(sim_rt)
     ''' Post process tenant-level recovery times
       Overwrite NaNs in tenant_unit_day_functional
       Only NaN where never had functional loss, therefore set to zero'''

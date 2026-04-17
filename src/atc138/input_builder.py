@@ -740,6 +740,7 @@ def convert_pelicun(model_dir):
     accepted_first_tag = ['cmp', 'dmg', 'loss']
     assert any(item in accepted_first_tag for item in dv_tag_meta), "Missing meta-tag in index column (i.e. 'cmp/dmg/loss-loc-dir-ds' must be provided at minimum)"
     assert set(reqd_tags) <= set(dv_tag_meta), "Missing meta-tag in index column (i.e. 'cmp/dmg/loss-loc-dir-ds' must be provided at minimum)"
+    assert 'uid' not in dv_tag_meta, "uid found in DV input meta-tags. Duplicate cmp/dmg/loss-loc-dir-ds is not supported via uid; Condense duplicate cmp/dmg/loss-loc-dir-ds"
     DV_time = dvs.loc[:, dvs.columns.str.upper().str.startswith("TIME")]
     DV_cost = dvs.loc[:, dvs.columns.str.upper().str.startswith("COST")]
 
