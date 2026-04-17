@@ -1,4 +1,6 @@
-def run_analysis(input_dir, output_dir, seed=None, force_rebuild=False):
+def run_analysis(input_dir, output_dir, 
+                 output_file=None,
+                 seed=None, force_rebuild=False):
 
     '''This script facilitates the performance based functional recovery and
     reoccupancy assessment of a single building for a single intensity level
@@ -20,6 +22,10 @@ def run_analysis(input_dir, output_dir, seed=None, force_rebuild=False):
     
     output_dir: string
         Path to the directory where the output file (recovery_outputs.json) will be saved.
+        
+    output_file: string
+        If None (default), output file (recovery_outputs.json) will be saved. If string, name the 
+        output file as specified.
     
     seed: int
         Random seed to be passed to the Numpy random engine. Default behavior
@@ -190,8 +196,11 @@ def run_analysis(input_dir, output_dir, seed=None, force_rebuild=False):
                                             fnc_keys_6 = list(functionality[k_1][k_2][k_3][k_4][k_5].keys())
     
     output_json_object = json.dumps(functionality)
+
+    if output_file is None:
+        output_file = "recovery_outputs.json"
     
-    with open(os.path.join(output_dir, "recovery_outputs.json"), "w") as outfile:
+    with open(os.path.join(output_dir, output_file), "w") as outfile:
         outfile.write(output_json_object)
     
     end_time = time.time()
