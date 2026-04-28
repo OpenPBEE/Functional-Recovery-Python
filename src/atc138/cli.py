@@ -7,6 +7,7 @@ def main():
     parser = argparse.ArgumentParser(description="Run ATC-138 Functional Recovery Assessment")
     parser.add_argument("input_dir", help="Path to the directory containing input files (e.g., simulated_inputs.json)")
     parser.add_argument("output_dir", help="Path to the directory where outputs will be saved")
+    parser.add_argument("--output_file", type=str, help="String to name output file (default recovery_outputs.json)", default="recovery_outputs.json")
     parser.add_argument("--seed", type=int, help="Random seed for reproducibility", default=None)
     parser.add_argument("--force_rebuild", action="store_true", help="Flag to force override of simulated_inputs.json and rebuild", default=False)
 
@@ -18,7 +19,7 @@ def main():
         sys.exit(1)
 
     try:
-        run_analysis(args.input_dir, args.output_dir, seed=args.seed, force_rebuild=args.force_rebuild)
+        run_analysis(args.input_dir, args.output_dir, output_file=args.output_file, seed=args.seed, force_rebuild=args.force_rebuild)
     except Exception as e:
         print(f"Error running analysis: {e}", file=sys.stderr)
         sys.exit(1)

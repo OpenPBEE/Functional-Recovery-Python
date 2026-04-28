@@ -103,7 +103,7 @@ def fn_building_safety(damage, building_model, damage_consequences, utilities,
             recovery_day['fire_suppression'] = np.fmax(recovery_day['fire_suppression'], np.amax(repair_complete_day[:,damage['fnc_filters']['fire_building']], axis=1))
     
             # Consider utilities (assume no backup water supply)
-            recovery_day['fire_suppression'] = np.fmax(recovery_day['building']['fire'], np.array(utilities['water'])) # Assumes building does not have backup water supply
+            recovery_day['fire_suppression'] = np.fmax(recovery_day['fire_suppression'], np.array(utilities['water'])) # Assumes building does not have backup water supply
         
             # Componet Breakdowns
             comp_breakdowns['fire_suppression'][:,:,tu] = damage['fnc_filters']['fire_building'] * repair_complete_day
@@ -297,7 +297,7 @@ def fn_building_safety(damage, building_model, damage_consequences, utilities,
                     # Add days to components that are affecting occupancy
                     contributing_drops = ((damaged_comps * filt_fs_drop) > 0)  * np.logical_not(fire_drop_operational).reshape(num_reals,1) #count all components that contributed to non operational fire drops
                     contributing_branches = ((damaged_comps * filt_fs_drop) > 0)  * np.logical_not(fire_branch_operational).reshape(num_reals,1) # count all components that contributed to non operational fire drops
-                    contributing_comps = np.amax(contributing_drops, contributing_branches)
+                    contributing_comps = np.fmax(contributing_drops, contributing_branches)
                     comp_breakdowns_local_fire[:,:,tu] = comp_breakdowns_local_fire[:,:,tu] + contributing_comps * delta_day.reshape(num_reals,1)
     
                     # Change the comps for the next increment
