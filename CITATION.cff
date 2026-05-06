@@ -28,17 +28,17 @@ url: "https://github.com/OpenPBEE/Functional-Recovery-Python"
 preferred-citation:
   type: article
   authors:
-	- family-names: "Cook"
-	  given-names: "Dustin T."
-	  orcid: "https://orcid.org/0000-0002-4841-4515"
-	- family-names: "Liel"
-	  given-names: "Abbie B."
-	  orcid: "https://orcid.org/0000-0002-9241-5144"
-	- family-names: "Haselton"
-	  given-names: "Curt B."
-	- family-names: "Koliou"
-	  given-names: "Maria"
-	  orcid: "https://orcid.org/0000-0002-0686-493X"
+  - family-names: "Cook"
+    given-names: "Dustin T."
+    orcid: "https://orcid.org/0000-0002-4841-4515"
+  - family-names: "Liel"
+    given-names: "Abbie B."
+    orcid: "https://orcid.org/0000-0002-9241-5144"
+  - family-names: "Haselton"
+    given-names: "Curt B."
+  - family-names: "Koliou"
+    given-names: "Maria"
+    orcid: "https://orcid.org/0000-0002-0686-493X"
   doi: https://doi.org/10.1177/87552930221081538
   journal: "Earthquake Spectra"
   start: 1972 # First page number
