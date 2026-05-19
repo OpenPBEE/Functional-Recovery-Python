@@ -165,17 +165,15 @@ def run_analysis(input_dir, output_dir,
     
     # Covert arrays to list for writing to json file   
     functionality = recursive_convert_array(functionality)
+
+    # join consequences
+    consequences = recursive_convert_array(damage_consequences)
+    functionality = functionality | consequences
     
     output_json_object = json.dumps(functionality)
     
     with open(os.path.join(output_dir, output_file), "w") as outfile:
         outfile.write(output_json_object)
-
-    consequences = recursive_convert_array(damage_consequences)
-    consequence_json_object = json.dumps(consequences)
-
-    with open(os.path.join(output_dir, 'consequences.json'), "w") as outfile:
-        outfile.write(consequence_json_object)
     
     end_time = time.time()
     
