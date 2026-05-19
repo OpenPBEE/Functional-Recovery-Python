@@ -1,3 +1,4 @@
+import numpy as np
 def run_analysis(input_dir, output_dir, 
                  output_file='recovery_outputs.json',
                  seed=None, force_rebuild=False):
@@ -198,6 +199,12 @@ def run_analysis(input_dir, output_dir,
     
     with open(os.path.join(output_dir, output_file), "w") as outfile:
         outfile.write(output_json_object)
+
+    consequences = recursive_convert_array(damage_consequences)
+    consequence_json_object = json.dumps(consequences)
+
+    with open(os.path.join(output_dir, 'consequences.json'), "w") as outfile:
+        outfile.write(consequence_json_object)
     
     end_time = time.time()
     
@@ -205,3 +212,32 @@ def run_analysis(input_dir, output_dir,
     print('Recovery assessment complete')
     print('time to run '+str(round(end_time - start_time,2))+'s')
 
+def recursive_convert_array(obj):
+    """
+    Recursively convert numpy arrays to lists,
+    traversing nested dicts/lists/tuples.
+    """
+
+    if isinstance(obj, np.ndarray):
+        return obj.tolist()
+
+    elif isinstance(obj, dict):
+        return {
+            key: recursive_convert_array(value)
+            for key, value in obj.items()
+        }
+
+    elif isinstance(obj, list):
+        return [recursive_convert_array(item) for item in obj]
+
+    elif isinstance(obj, tuple):
+        return tuple(recursive_convert_array(item) for item in obj)
+    
+    elif isinstance(obj, np.integer):
+        return int(obj)
+
+    elif isinstance(obj, np.floating):
+        return float(obj)
+
+    else:
+        return obj
