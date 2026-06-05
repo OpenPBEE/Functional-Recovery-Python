@@ -136,7 +136,8 @@ def build_simulated_inputs(model_dir):
     comp_header = list(comp_population.columns)
 
     # component IDs from comp_population
-    comp_list = np.array(comp_header[2:])
+    comp_meta = ['story', 'dir']
+    comp_list = [cmp_label for cmp_label in comp_header if cmp_label not in comp_meta]
     comp_list = np.char.replace(comp_list, '_', '.')
     comp_list = comp_list.tolist()
 

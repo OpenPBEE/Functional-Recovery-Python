@@ -258,4 +258,4 @@ python tests/compare_runs.py <reference_dir> <python_output_dir>
 
 ### Validation Testing Against MATLAB
 
-For detailed guidance on validating the Python implementation against the original MATLAB framework, see [tests/detailed_inspection_guide.md](tests/detailed_inspection_guide.md).
+For detailed guidance on validating the Python implementation against the original MATLAB framework, see [tests/README.md](tests/README.md).
