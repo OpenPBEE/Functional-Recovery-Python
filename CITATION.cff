@@ -1,0 +1,49 @@
+cff-version: 1.0.0
+message: "If you use this software, please cite it as below."
+authors:
+- family-names: "Zaidi"
+  given-names: "Faraz"
+- family-names: "Pham"
+  given-names: "Huy G."
+  orcid: "https://orcid.org/0000-0002-8043-7784"
+- family-names: "Wang"
+  given-names: "Ziyi"
+- family-names: "Cook"
+  given-names: "Dustin T."
+  orcid: "https://orcid.org/0000-0002-4841-4515"
+- family-names: "Zsarnoczay"
+  given-names: "Adam"
+  orcid: "https://orcid.org/0000-0001-6895-1417"
+- family-names: "Molina Hutt"
+  given-names: "Carlos"
+  orcid: "https://orcid.org/0000-0003-2116-1201"
+- family-names: "Hulsey"
+  given-names: "Anne M."
+  orcid: "https://orcid.org/0000-0002-4265-055X"
+title: "OpenPBEE/Functional-Recovery-Python"
+version: 1.3.0
+doi: https://doi.org/10.5281/zenodo.20045328
+date-released: 2026-03-31
+url: "https://github.com/OpenPBEE/Functional-Recovery-Python"
+preferred-citation:
+  type: article
+  authors:
+  - family-names: "Cook"
+    given-names: "Dustin T."
+    orcid: "https://orcid.org/0000-0002-4841-4515"
+  - family-names: "Liel"
+    given-names: "Abbie B."
+    orcid: "https://orcid.org/0000-0002-9241-5144"
+  - family-names: "Haselton"
+    given-names: "Curt B."
+  - family-names: "Koliou"
+    given-names: "Maria"
+    orcid: "https://orcid.org/0000-0002-0686-493X"
+  doi: https://doi.org/10.1177/87552930221081538
+  journal: "Earthquake Spectra"
+  start: 1972 # First page number
+  end: 2007 # Last page number
+  title: "A framework for operationalizing the assessment of post-earthquake functional recovery of buildings"
+  issue: 3
+  volume: 38
+  year: 2022
