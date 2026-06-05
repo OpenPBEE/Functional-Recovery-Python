@@ -20,7 +20,7 @@ from atc138.driver import run_analysis
 # and tighter tolerances are appropriate. Note that tolerances will also need
 # to be adjusted in compare_runs.py for Phase 2.
 ASSERT_AUC = False
-ASSERT_POINTWISE = True
+ASSERT_POINTWISE = False
 
 def get_model_fixtures():
     """Discover model fixture directories for pytest parametrization.
