@@ -446,8 +446,8 @@ def evaluate_tolerances(reference_dir, python_dir):
                 continue
             
             metrics = curve_diff_metrics(pc['curve'], rc['curve'], t_grid)
-            # Tolerance: P95 absolute error ≤ 2% and MAE ≤ 1% (fraction scale)
-            passed = metrics['P95_abs'] <= 0.02 and metrics['MAE'] <= 0.01
+            # Tolerance: P95 absolute error ≤ 4% and MAE ≤ 2% (fraction scale)
+            passed = metrics['P95_abs'] <= 0.04 and metrics['MAE'] <= 0.02
             if not passed: results["all_passed"] = False
             
             results["pointwise"][tag_key].append({

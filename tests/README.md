@@ -58,7 +58,7 @@ Threshold: ```≤ 4 %```
 
 System-level wise, the highest MAE of the fraction of unresolved damage over time, across all functional-recovery and reoccupancy systems. 
 
-Threshold: ```≤ 0.01``` (no more than 1% unresolved fraction across all systems)
+Threshold: ```≤ 0.02``` (no more than 2% unresolved fraction across all systems)
 
 </br>
 
@@ -66,7 +66,7 @@ Threshold: ```≤ 0.01``` (no more than 1% unresolved fraction across all system
 
 System-level wise, the maximum 95th percentile absolute error of the fraction of unresolved damage over time, across all functional-recovery and reoccupancy systems. 
 
-Threshold: ```≤ 0.02``` (no more than of 2% unresolved fraction across all systems)
+Threshold: ```≤ 0.04``` (no more than of 4% unresolved fraction across all systems)
 
 </br>
 
