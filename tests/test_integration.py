@@ -52,7 +52,8 @@ def test_reference_comparison(model_name, model_dir, tmp_path):
 
     reference_dir = model_dir / "reference"
 
-    run_analysis(str(example_dir), str(tmp_path))
+    default_seed = 123
+    run_analysis(str(example_dir), str(tmp_path), seed=default_seed)
     results = evaluate_tolerances(str(reference_dir), str(tmp_path))
 
     hl = results["high_level"]
