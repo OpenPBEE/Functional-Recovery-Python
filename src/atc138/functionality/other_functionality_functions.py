@@ -159,7 +159,7 @@ def fn_building_safety(damage, building_model, damage_consequences, utilities,
 
     # Loop through component repair times to determine the day it stops affecting re-occupancy
     num_repair_time_increments = np.sum(damage['fnc_filters']['ext_fall_haz_all'])*num_units # possible unique number of loop increments
-    edge_lengths = np.row_stack((np.array(building_model['edge_lengths']), np.array(building_model['edge_lengths'])))
+    edge_lengths = np.vstack((np.array(building_model['edge_lengths']), np.array(building_model['edge_lengths'])))
     
     affected_ratio={}
     for side in range(4):
