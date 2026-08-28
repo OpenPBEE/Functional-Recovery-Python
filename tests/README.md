@@ -56,23 +56,31 @@ Threshold: ```≤ 4 %```
 
 **Metric 3 — Worst system mean absolute error (MAE)**
 
-System-level wise, the maximum MAE of the fraction of unresolved damage over time, across all functional-recovery and reoccupancy systems. 
+System-level wise, the highest MAE of the fraction of unresolved damage over time, across all functional-recovery and reoccupancy systems. 
 
-Threshold: ```≤ 0.02``` (maximum mean difference of 2% unresolved fraction)
+Threshold: ```≤ 0.02``` (no more than 2% unresolved fraction across all systems)
 
 </br>
 
 **Metric 4 — Worst system 95th percentile absolute error**
 
-System-level wise, the maximum 95th percentile aboslute error of the fraction of unresolved damage over time, across all functional-recovery and reoccupancy systems. 
+System-level wise, the maximum 95th percentile absolute error of the fraction of unresolved damage over time, across all functional-recovery and reoccupancy systems. 
 
-Threshold: ```≤ 0.04``` (maximum mean difference of 4% unresolved fraction)
-
-Both absolute and relative differences are reported to provide a more complete assessment —— absolute difference reflects the magnitude of discrepancies, while relative difference normalizes them across models with different recovery scales. Using both avoids misleading interpretations —— for example, a small absolute difference may appear large in relative terms for short recovery durations, while a small relative difference may still correspond to a large absolute difference for long recovery durations. 
+Threshold: ```≤ 0.04``` (no more than of 4% unresolved fraction across all systems)
 
 </br>
 
-#### 5. Recovery Trajectory and System-Level Recovery Comparison
+#### 5. Testing thresholds
+
+Both absolute and relative differences are reported to provide a more complete assessment: absolute difference reflects the magnitude of discrepancies, while relative difference normalizes them across models with different recovery scales. Using both avoids misleading interpretations. For example, a small absolute difference may appear large in relative terms for short recovery durations, while a small relative difference may still correspond to a large absolute difference for long recovery durations. 
+
+In the porting process from MATLAB to Python, the output Python results were compared against the reference MATLAB values. The test case is ideally averaged across multiple random seeds, to minimize variance between each realization. The test case is considered to adequately match if:
+
+1) At the high level, either Metric 1 _or_ Metric 2 pass their thresholds. That is, either an absolute difference in mean recovery time $\leq$ 2 days _or_ a relative difference in mean recovery time of $\leq$ 4% is considered passing.
+2) At the system level, both Metric 3 _and_ Metric 4 pass their thresholds. That is, for all systems at each assessed point in time, the average difference in unresolved fraction is no more than 2%, and the 95th-percentile worst difference in unresolved fraction is no more than 4%.
+
+
+#### 6. Recovery Trajectory and System-Level Recovery Comparison
 
 For each model, plots of recovery trajectories and system-level recovery curves are saved: 
 
@@ -81,7 +89,7 @@ For each model, plots of recovery trajectories and system-level recovery curves 
 - `system_breakdowns_reoccupancy.jpg`
 
 
-#### 6. Validation Results
+#### 7. Validation Results
 
 The comparison results for the two example models are summarized below. Twenty batch runs were carried out for each model, and the mean values are compared against the defined metrics.
 

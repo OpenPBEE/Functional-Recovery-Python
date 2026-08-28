@@ -1,3 +1,4 @@
+import numpy as np
 def run_analysis(input_dir, output_dir, 
                  output_file='recovery_outputs.json',
                  seed=None, force_rebuild=False):
@@ -163,36 +164,11 @@ def run_analysis(input_dir, output_dir,
         os.makedirs(output_dir)
     
     # Covert arrays to list for writing to json file   
-    fnc_keys_1 = list(functionality.keys())
-    for k_1 in fnc_keys_1:
-        if type(functionality[k_1]) == np.ndarray: 
-            functionality[k_1] = functionality[k_1].tolist() 
-        if type(functionality[k_1]) == dict:
-            fnc_keys_2 = list(functionality[k_1].keys())    
-       
-            for k_2 in fnc_keys_2:
-                if type(functionality[k_1][k_2]) == np.ndarray: 
-                    functionality[k_1][k_2] = functionality[k_1][k_2].tolist()
-                if type(functionality[k_1][k_2]) == dict:
-                    fnc_keys_3 = list(functionality[k_1][k_2].keys())    
-       
-                    for k_3 in fnc_keys_3:
-                        if type(functionality[k_1][k_2][k_3]) == np.ndarray: 
-                            functionality[k_1][k_2][k_3] = functionality[k_1][k_2][k_3].tolist()
-                        if type(functionality[k_1][k_2][k_3]) == dict:
-                            fnc_keys_4 = list(functionality[k_1][k_2][k_3].keys())
-     
-                            for k_4 in fnc_keys_4:
-                                if type(functionality[k_1][k_2][k_3][k_4]) == np.ndarray: 
-                                    functionality[k_1][k_2][k_3][k_4] = functionality[k_1][k_2][k_3][k_4].tolist()
-                                if type(functionality[k_1][k_2][k_3][k_4]) == dict:
-                                    fnc_keys_5 = list(functionality[k_1][k_2][k_3][k_4].keys())
-        
-                                    for k_5 in fnc_keys_5:
-                                        if type(functionality[k_1][k_2][k_3][k_4][k_5]) == np.ndarray: 
-                                            functionality[k_1][k_2][k_3][k_4][k_5] = functionality[k_1][k_2][k_3][k_4][k_5].tolist()
-                                        if type(functionality[k_1][k_2][k_3][k_4][k_5]) == dict:
-                                            fnc_keys_6 = list(functionality[k_1][k_2][k_3][k_4][k_5].keys())
+    functionality = recursive_convert_array(functionality)
+
+    # join consequences
+    consequences = recursive_convert_array(damage_consequences)
+    functionality = functionality | consequences
     
     output_json_object = json.dumps(functionality)
     
@@ -205,3 +181,32 @@ def run_analysis(input_dir, output_dir,
     print('Recovery assessment complete')
     print('time to run '+str(round(end_time - start_time,2))+'s')
 
+def recursive_convert_array(obj):
+    """
+    Recursively convert numpy arrays to lists,
+    traversing nested dicts/lists/tuples.
+    """
+
+    if isinstance(obj, np.ndarray):
+        return obj.tolist()
+
+    elif isinstance(obj, dict):
+        return {
+            key: recursive_convert_array(value)
+            for key, value in obj.items()
+        }
+
+    elif isinstance(obj, list):
+        return [recursive_convert_array(item) for item in obj]
+
+    elif isinstance(obj, tuple):
+        return tuple(recursive_convert_array(item) for item in obj)
+    
+    elif isinstance(obj, np.integer):
+        return int(obj)
+
+    elif isinstance(obj, np.floating):
+        return float(obj)
+
+    else:
+        return obj

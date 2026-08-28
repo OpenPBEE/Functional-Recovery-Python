@@ -249,9 +249,9 @@ def plt_recovery_trajectory(recovery, full_repair_time, plot_dir):
     # Plot Recovery Trajectory
     plt.rcParams["font.family"] = "Times New Roman"
     plt.figure(figsize=(6,4)) 
-    plt.plot(reoc, level_of_repair,'r-', linewidth = 1.5, label = 'Re-Occupancy') 
-    plt.plot(func, level_of_repair,'b-', linewidth = 1.5, label= 'Functional') 
-    plt.plot([full, full], [0, 1],'k-', linewidth = 1.5, label= 'Fully Repaired') 
+    plt.plot(reoc, level_of_repair,'r:', linewidth = 1.5, label = 'Re-Occupancy', zorder=2) 
+    plt.plot(func, level_of_repair,'b--', linewidth = 1.5, label= 'Functional',zorder=1) 
+    plt.plot([full, full], [0, 1],'k-', linewidth = 1.5, label= 'Fully Repaired', zorder=0) 
     plt.xlim([0,np.ceil((full+1)/10)*10])
     plt.xlabel('Days After Earthquake')
     plt.ylabel('Fraction of Floor Area')
@@ -414,9 +414,9 @@ def plt_gantt_chart(p_idx, recovery, full_repair_time, workers, schedule, impede
     G3.grid(which = 'major', axis = 'x', alpha=0.5) 
     
     # Plot Recovery Trajectory
-    G4.plot(recovery_trajectory['reoc'], recovery_trajectory['level_of_repair'],'r-', linewidth = 1.5, label = 'Re-Occupancy')
-    G4.plot(recovery_trajectory['func'], recovery_trajectory['level_of_repair'],'b-', linewidth = 1.5, label = 'Functional')
-    G4.plot(recovery_trajectory['ful_rep'], recovery_trajectory['level_of_repair'],'k-', linewidth = 1.5, label = 'Fully Repaired')
+    G4.plot(recovery_trajectory['func'], recovery_trajectory['level_of_repair'],'b--', linewidth = 1.5, label = 'Functional',zorder=1)
+    G4.plot(recovery_trajectory['reoc'], recovery_trajectory['level_of_repair'],'r:', linewidth = 1.5, label = 'Re-Occupancy',zorder=2)
+    G4.plot(recovery_trajectory['ful_rep'], recovery_trajectory['level_of_repair'],'k-', linewidth = 1.5, label = 'Fully Repaired', zorder=0)
     G4.set_ylim([0,1])
     G4.set_xlabel('Days After Earthquake')
     G4.set_ylabel('Fraction of Floor Area')
